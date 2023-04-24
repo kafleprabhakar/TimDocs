@@ -1,0 +1,24 @@
+{
+  "name": "timdocs",
+  "version": "1.0.0",
+  "description": "Peer-to-peer collaborative text-editor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kafleprabhakar/TimDocs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kafleprabhakar/TimDocs/issues"
+  },
+  "homepage": "https://github.com/kafleprabhakar/TimDocs#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}
