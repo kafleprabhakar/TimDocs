@@ -14,6 +14,7 @@ app.get('/', (req, res) => {
   response['peers'] = [...peers];
   peers.push(id);
   response['me'] = id;
+  console.log(response);
   res.json(response);
 })
 
