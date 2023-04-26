@@ -1,11 +1,12 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 1800;
 const crypto = require("crypto");
 var cors = require('cors');
 
 app.use(cors());
 
+//
 const peers = [];
 
 app.get('/', (req, res) => {
