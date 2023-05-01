@@ -1,4 +1,4 @@
-// Unique identifier for WChar
+// Unique identifier for WChar, as defined in WOOT paper
 export class WId {
     /**
      * 
