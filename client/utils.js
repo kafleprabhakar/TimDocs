@@ -1,5 +1,10 @@
 // Unique identifier for WChar
 export class WId {
+    /**
+     * 
+     * @param {int} numSite 
+     * @param {int} numTick 
+     */
     constructor (numSite, numTick) {
         this.numSite = numSite;
         this.numTick = numTick;
@@ -8,6 +13,14 @@ export class WId {
 
 // WChar type, as defined in WOOT paper
 export class WChar {
+    /**
+     * 
+     * @param {WId} id 
+     * @param {string} c 
+     * @param {boolean} visible 
+     * @param {WId} idPrev 
+     * @param {WId} idNew 
+     */
     constructor(id, c, visible, idPrev, idNew) {
         this.id = id;
         this.c = c;
