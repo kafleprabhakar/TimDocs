@@ -18,10 +18,11 @@ export class Messenger {
             this.connections[peer] = conn;
             console.log("Connected to peer", peer);
             // Send messages
-            conn.send("Hello!");
+            conn.send("Hello!"); // heartbeat 
             conn.on("data", this.listenForData);
+
         });
-    }
+    } 
 
     listenForConnection() {
         this.me.on("connection", (conn) => {
@@ -41,5 +42,25 @@ export class Messenger {
 
     removePeer(peer) {
         delete this.connections[peer];
+    }
+
+    broadcast(data) {
+
+        for (let key in this.connections) {
+            if (key!=this.me) {
+                this.connections[key].send("newchange", (data))
+            }
+        } 
+        
+    }
+
+    heartbeat() { 
+        for (let key in this.connections) {
+            if (key!=this.me) {
+                this.connections[key].send("heartbeat", "")
+                this.connections[key].on("received heartbeat") 
+            }
+        }  
+
     }
 }
