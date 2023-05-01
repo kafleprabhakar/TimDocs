@@ -3,7 +3,7 @@ import { Tree } from "./tree.js";
 
 window.onload = async function() {
     var editor = document.getElementById("editor");
-    const client = new Client();
+    const client = new Client(true);
     
     const tree = new Tree(1, 'AB');
 
@@ -21,7 +21,7 @@ window.onload = async function() {
     console.log(tree.find(121).isLeaf);        // true
     console.log(tree.find(121).parent.value);  // 'BC'
 
-    tree.remove(12);
+    tree.remove(12);   
 
     console.log([...tree.postOrderTraversal()].map(x => x.value));
 };

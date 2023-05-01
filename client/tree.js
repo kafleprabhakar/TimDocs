@@ -1,23 +1,40 @@
-class TreeNode {
-    constructor(key, value = key, parent = null) {
-      this.key = key;
-      this.value = value;
-      this.parent = parent;
-      this.children = [];
+export class Node {
+    constructor(wChar, parent = null) {
+        this.wChar = wChar;
+        this.parent = parent;
+        this.children = []; 
     }
-  
+
     get isLeaf() {
-      return this.children.length === 0;
+        return this.children.length === 0;
     }
-  
+
     get hasChildren() {
-      return !this.isLeaf;
+        return !this.isLeaf;
     }
-  }
+}
+
+// Tree node that is the WChar
+export class WChar {
+    constructor(id, char, visible, idPrev, idNew) {
+        this.id = id;
+        this.char = char,
+        this.visible = visible;
+        this.idPrev = idPrev;
+        this.idNew = idNew;
+    }
+
+    // Returns the message of this CRDT Operation to be sent to peers
+    toMessage() {
+        return {
+
+        }
+    }
+}
   
 export class Tree {
-    constructor(key, value = key) {
-      this.root = new TreeNode(key, value);
+    constructor(id, char, visible, idPrev, idNew) {
+      this.root = new TreeNode(id, char, visible, idPrev, idNew);
     }
   
     *preOrderTraversal(node = this.root) {
