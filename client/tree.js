@@ -1,4 +1,12 @@
-export class Node {
+import { WChar } from "./utils.js";
+import { WId } from "./utils.js";
+
+export class TreeNode {
+    /**
+     * 
+     * @param {WChar} wChar 
+     * @param {WId} parent 
+     */
     constructor(wChar, parent = null) {
         this.wChar = wChar;
         this.parent = parent;
@@ -14,72 +22,62 @@ export class Node {
     }
 }
 
-// Tree node that is the WChar
-export class WChar {
-    constructor(id, char, visible, idPrev, idNew) {
-        this.id = id;
-        this.char = char,
-        this.visible = visible;
-        this.idPrev = idPrev;
-        this.idNew = idNew;
+export class Tree {
+    /**
+     * 
+     * @param {WId} id 
+     * @param {string} c 
+     * @param {boolean} isVisible 
+     * @param {WId} idPrev 
+     * @param {WId} idNew 
+     */
+    constructor(id, c, isVisible = true, idPrev = null, idNew = null) {
+        this.root = new TreeNode(new WChar(id, c, isVisible, idPrev, idNew))
     }
 
-    // Returns the message of this CRDT Operation to be sent to peers
-    toMessage() {
-        return {
-
+    *preOrderTraversal(node = this.root) {
+        yield node;
+        if (node.children.length) {
+            for (let child of node.children) {
+                yield* this.preOrderTraversal(child);
+            }
         }
+    }
+
+    *postOrderTraversal(node = this.root) {
+        if (node.children.length) {
+            for (let child of node.children) {
+                yield* this.postOrderTraversal(child);
+            }
+        }
+        yield node;
+    }
+
+    insert(parentNodeId, id, c, isVisible = true, idPrev = null, idNew = null) {
+        for (let node of this.preOrderTraversal()) {
+            if (node.wChar.id.numTick === parentNodeId.numTick) {
+                node.children.push(new TreeNode(new WChar(id, c, isVisible, idPrev, idNew), node));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    remove(id) {
+        for (let node of this.preOrderTraversal()) {
+            const filtered = node.children.filter(c => c.wChar.id.numTick !== id.numTick);
+            if (filtered.length !== node.children.length) {
+                node.children = filtered;
+                return true
+            }
+        }
+        return false;
+    }
+
+    find(id) {
+        for (let node of this.preOrderTraversal()) {
+            if (node.wChar.id.numTick === id.numTick) return node;
+        }
+        return undefined;
     }
 }
-  
-export class Tree {
-    constructor(id, char, visible, idPrev, idNew) {
-      this.root = new TreeNode(id, char, visible, idPrev, idNew);
-    }
-  
-    *preOrderTraversal(node = this.root) {
-      yield node;
-      if (node.children.length) {
-        for (let child of node.children) {
-          yield* this.preOrderTraversal(child);
-        }
-      }
-    }
-  
-    *postOrderTraversal(node = this.root) {
-      if (node.children.length) {
-        for (let child of node.children) {
-          yield* this.postOrderTraversal(child);
-        }
-      }
-      yield node;
-    }
-  
-    insert(parentNodeKey, key, value = key) {
-      for (let node of this.preOrderTraversal()) {
-        if (node.key === parentNodeKey) {
-          node.children.push(new TreeNode(key, value, node));
-          return true;
-        }
-      }
-      return false;
-    }
-  
-    remove(key) {
-      for (let node of this.preOrderTraversal()) {
-        const filtered = node.children.filter(c => c.key !== key);
-        if (filtered.length !== node.children.length) {
-          node.children = filtered;
-          return true;
-        }
-      }
-      return false;
-    }
-  
-    find(key) {
-      for (let node of this.preOrderTraversal()) {
-        if (node.key === key) return node;
-      }
-      return undefined;
-    }
-  }

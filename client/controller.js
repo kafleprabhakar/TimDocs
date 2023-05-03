@@ -1,4 +1,4 @@
-import { WChar, CRDTOp } from "./utils";
+import { WChar, CRDTOp } from "./utils.js";
 
 export class Controller {
     constructor() {
@@ -12,7 +12,7 @@ export class Controller {
      * @returns {WChar} CRDT W-character for this insertion
      */
     generateInsert(c, pos) {
-
+        
     }
 
     /**
