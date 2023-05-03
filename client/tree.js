@@ -71,7 +71,7 @@ export class Tree {
      * @param {WId} idNew 
      * @returns 
      */
-    insert(parentNodeId, id, c, isVisible = true, idPrev = null, idNew = null) {
+    insertBasic(parentNodeId, id, c, isVisible = true, idPrev = null, idNew = null) {
         for (let node of this.preOrderTraversal()) {
             if (node.wChar.id.numTick === parentNodeId.numTick) {
                 node.children.push(new TreeNode(new WChar(id, c, isVisible, idPrev, idNew), node));
@@ -107,5 +107,126 @@ export class Tree {
             if (node.wChar.id.numTick === id.numTick) return node;
         }
         return undefined;
+    }
+
+    /**
+     * Gets the ith visible character
+     * @param {int} i 
+     * @returns {WChar} found at ith position
+     */
+    ithVisible(i) {
+        let count = 0;
+        for (let node of this.preOrderTraversal()) {
+            if (node.wChar.isVisible) {
+                if (count === i) {
+                    return node.wChar;
+                }
+                count += 1;
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * Insert WChar c into the position that WChar c2 used to be in
+     * Position index INCLUDES hidden characters
+     * @param {WChar} c1
+     * @param {int} p pos(c2)
+     * @returns True if inserted correctly
+     */
+    insert(c1, p) {
+        let tree = [...this.preOrderTraversal()];
+        const t2 = tree[p]; // TreeNode found at position p
+        if (t2 === null) {
+            return false;
+        }
+        let t1 = new TreeNode(c1, t2.parent.wChar.id);
+        t1.children = t2.children;
+        t1.children.unshift(t2);
+        t2.children = [];
+        for (let child of t1.children) {
+            child.parent = t1.wChar.id;
+        }
+        return true;
+    }
+
+    /**
+     * Gets index of WChar c
+     * Index INCLUDES hidden characters
+     * @param {WChar} c 
+     * @returns Index of WChar c (-1 if not found)
+     */
+    pos(c) {
+        let i = 0;
+        for (let node of this.preOrderTraversal()) {
+            if (node === c) {
+                return i;
+            }
+            i += 1;
+        }
+        return -1;
+    }
+
+    /**
+     * Returns true if c can be found
+     * @param {WChar} c 
+     * @returns 
+     */
+    contains(c) {
+        if (this.pos(c) === -1) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Gets the previous WChar (does not have to be visible)
+     * @param {WChar} c 
+     * @returns Previous WChar. If none exist, returns -1.
+     */
+    CP(c) {
+        let tree = [...this.preOrderTraversal()];
+        for (let i = 0; i < length(tree); i++) {
+            if (tree[i].wChar === c) {
+                if (i > 0) {
+                    return tree[i-1];
+                }
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * Gets the next WChar (does not have to be visible)
+     * @param {WChar} c 
+     * @returns 
+     */
+    CN(c) {
+        let tree = [...this.preOrderTraversal()];
+        for (let i = 0; i < length(tree); i++) {
+            if (tree[i].wChar === c) {
+                if (i+1 < length(tree)) {
+                    return tree[i+1];
+                }
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * Returns string of visible WChars in linear order
+     */
+    value() {
+        let s = "";
+        for (let node of this.preOrderTraversal()) {
+            if (node.wChar.isVisible) {
+                s += node.wChar.c;
+            }
+        }
+        return s;
+    }
+
+    subseq(c, d) {
+
     }
 }

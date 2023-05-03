@@ -8,9 +8,9 @@ window.onload = async function() {
     
     const tree = new Tree(new WId(1, 1), 'a');
 
-    tree.insert(new WId(1, 1), new WId(1, 2), 'b');
-    tree.insert(new WId(1, 1), new WId(1, 3), 'c');
-    tree.insert(new WId(1, 2), new WId(1, 4), 'd');
+    tree.insertBasic(new WId(1, 1), new WId(1, 2), 'b');
+    tree.insertBasic(new WId(1, 1), new WId(1, 3), 'c');
+    tree.insertBasic(new WId(1, 2), new WId(1, 4), 'd');
 
     console.log([...tree.preOrderTraversal()].map(x => x.wChar.c));
     // ['AB', 'AC', 'BC', 'BCG']
