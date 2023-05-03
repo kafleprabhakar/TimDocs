@@ -35,6 +35,10 @@ export class Tree {
         this.root = new TreeNode(new WChar(id, c, isVisible, idPrev, idNew))
     }
 
+    /**
+     * Generates left to right order of the tree
+     * @param {TreeNode} node 
+     */
     *preOrderTraversal(node = this.root) {
         yield node;
         if (node.children.length) {
@@ -44,6 +48,10 @@ export class Tree {
         }
     }
 
+    /**
+     * Generates right to left order of the tree
+     * @param {TreeNode} node 
+     */
     *postOrderTraversal(node = this.root) {
         if (node.children.length) {
             for (let child of node.children) {
@@ -53,6 +61,16 @@ export class Tree {
         yield node;
     }
 
+    /**
+     * Insert wchar
+     * @param {WId} parentNodeId 
+     * @param {WId} id 
+     * @param {string} c 
+     * @param {boolean} isVisible 
+     * @param {WId} idPrev 
+     * @param {WId} idNew 
+     * @returns 
+     */
     insert(parentNodeId, id, c, isVisible = true, idPrev = null, idNew = null) {
         for (let node of this.preOrderTraversal()) {
             if (node.wChar.id.numTick === parentNodeId.numTick) {
@@ -63,6 +81,11 @@ export class Tree {
         return false;
     }
 
+    /**
+     * Completely remove wchar with certain ID
+     * @param {WId} id 
+     * @returns 
+     */
     remove(id) {
         for (let node of this.preOrderTraversal()) {
             const filtered = node.children.filter(c => c.wChar.id.numTick !== id.numTick);
@@ -74,6 +97,11 @@ export class Tree {
         return false;
     }
 
+    /**
+     * Returns node with certain ID
+     * @param {WId} id 
+     * @returns 
+     */
     find(id) {
         for (let node of this.preOrderTraversal()) {
             if (node.wChar.id.numTick === id.numTick) return node;
