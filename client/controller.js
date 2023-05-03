@@ -1,45 +1,63 @@
-import { WChar, CRDTOp } from "./utils.js";
+import { WChar, CRDTOp, WId, OpType } from "./utils";
 
 export class Controller {
-    constructor() {
+    constructor(siteId) {
         this.tree = null;
+        this.tick = 0;
+        this.sideId = siteId;
+        this.bufferPool = [];
     }
     /**
      * Triggered when the client inserts a character in the document. Inserts this character at the specified position
      * in the tree and returns a CRDT w-character which will be broadcasted to other clients.
      * @param {string} c the character to insert
      * @param {number} pos position of c in the document (of visible characters)
-     * @returns {WChar} CRDT W-character for this insertion
+     * @returns {CRDTOp} CRDT Operation for this insertion
      */
     generateInsert(c, pos) {
-        
+        this.tick += 1;
+        const cp = this.tree.ithVisible(pos);
+        const cn = this.tree.ithVisible(pos + 1);
+        const wid = new WId(this.siteId, this.tick);
+        const wChar = new WChar(wid, c, true, cp.id, cn.id);
+        this.integrateInsert(wChar);
+        return new CRDTOp(OpType.Insert, wChar);
     }
 
     /**
      * Triggered when the client deletes a character in the document. Makes this character invisible in the tree
      * and returns a CRDT object which will be broadcasted to other clients.
-     * @param {string} c the character to delete
      * @param {number} pos position of the character in the document to be deleted
-     * @returns {WChar} CRDT W-character for this deletion
+     * @returns {CRDTOp} CRDT Operation for this deletion
      */
-    generateDelete(c, pos) {
-
+    generateDelete(pos) {
+        const wChar = this.tree.ithVisible(pos);
+        this.integrateDelete(wChar);
+        return new CRDTOp(OpType.Delete, wChar);
     }
 
     /**
      * Handles insert operation from remote peer. Checks if the operation is executable before integrating
-     * @param {WChar} wchar
+     * @param {CRDTOp} op
      */
-    ins(wChar) {
-
+    ins(op) {
+        if (this.isExecutable(op)) {
+            this.integrateInsert(op.wChar, this.tree.CP(op.wChar), this.tree.CN(op.wChar));
+        } else {
+            this.bufferPool.push(op);
+        }
     }
 
     /**
      * Handles delete operation from remote peer. Checks if the operation is executable before integrating
-     * @param {WChar} wChar 
+     * @param {CRDTOp} op 
      */
-    del(wChar) {
-
+    del(op) {
+        if (this.isExecutable(op)) {
+            this.integrateDelete(op.wChar);
+        } else {
+            this.bufferPool.push(op);
+        }
     }
 
     /**
@@ -47,7 +65,11 @@ export class Controller {
      * @param {CRDTOp} op the CRDT operation to check 
      */
     isExecutable(op) {
-
+        if (op.opType == OpType.Insert) {
+            return this.tree.contains(op.wChar);
+        } else {
+            return this.tree.contains(this.tree.CP(op.wChar)) && this.tree.contains(this.tree.CN(op.wChar));
+        }
     }
     
     /**
