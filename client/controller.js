@@ -1,8 +1,9 @@
 import { WChar, CRDTOp, WId, OpType } from "./utils";
+import { Tree } from "./tree";
 
 export class Controller {
     constructor(siteId) {
-        this.tree = null;
+        this.tree = new Tree();
         this.tick = 0;
         this.sideId = siteId;
         this.bufferPool = [];
