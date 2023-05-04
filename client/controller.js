@@ -82,6 +82,22 @@ export class Controller {
      */
     integrateInsert(wchar, wchar_prev, wchar_next) {
 
+        // find sequence 
+        // insert at next position 
+        
+        sequence = this.tree 
+        subseq = sequence.subseq(wchar_prev, wchar_next) 
+        if (length(subseq)===0) { 
+            return sequence.insertBasic(w_char, this.tree.pos(wchar_next))
+        } else {
+            let L  = subseq
+            let i = 1 
+            // TODO: ADD IN CLOCKS check if site is same then clock for 1 has to be less than 2
+            while (i < length(L) -1 && (L[i].siteId<=wchar.siteId)){ 
+                i+=1
+            }
+            return this.integrateInsert(wchar, L[i-1],L[i])
+        }
     }
 
     /**
@@ -90,6 +106,9 @@ export class Controller {
      * @param {WChar} wChar 
      */ 
     integrateDelete(wChar) {
+        // set visible char to false 
+        this.wChar.visible = false // might have to do something more complicated 
+
 
     }
 }
