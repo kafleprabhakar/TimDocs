@@ -25,16 +25,8 @@ class TreeNode {
 }
 
 class Tree {
-    /**
-     * 
-     * @param {WId} id 
-     * @param {string} c 
-     * @param {boolean} isVisible 
-     * @param {WId} idPrev 
-     * @param {WId} idNew 
-     */
-    constructor(id, c, isVisible = true, idPrev = null, idNew = null) {
-        this.root = new TreeNode(new WChar(id, c, isVisible, idPrev, idNew))
+    constructor() {
+        this.root = null;
     }
 
     /**
@@ -42,10 +34,12 @@ class Tree {
      * @param {TreeNode} node 
      */
     *preOrderTraversal(node = this.root) {
-        yield node;
-        if (node.children.length) {
-            for (let child of node.children) {
-                yield* this.preOrderTraversal(child);
+        if (node) {
+            yield node;
+            if (node.children.length) {
+                for (let child of node.children) {
+                    yield* this.preOrderTraversal(child);
+                }
             }
         }
     }
@@ -55,32 +49,14 @@ class Tree {
      * @param {TreeNode} node 
      */
     *postOrderTraversal(node = this.root) {
-        if (node.children.length) {
-            for (let child of node.children) {
-                yield* this.postOrderTraversal(child);
+        if (node) {
+            if (node.children.length) {
+                for (let child of node.children) {
+                    yield* this.postOrderTraversal(child);
+                }
             }
+            yield node;
         }
-        yield node;
-    }
-
-    /**
-     * NM, PK: you can ignore this function! This was just for GK's testing purposes.
-     * @param {WId} parentNodeId 
-     * @param {WId} id 
-     * @param {string} c 
-     * @param {boolean} isVisible 
-     * @param {WId} idPrev 
-     * @param {WId} idNew 
-     * @returns 
-     */
-    insertBasic(parentNodeId, id, c, isVisible = true, idPrev = null, idNew = null) {
-        for (let node of this.preOrderTraversal()) {
-            if (node.wChar.id.numTick === parentNodeId.numTick) {
-                node.children.push(new TreeNode(new WChar(id, c, isVisible, idPrev, idNew), node));
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -141,6 +117,11 @@ class Tree {
      */
     insert(c1, p) {
         let tree = [...this.preOrderTraversal()];
+        // First insertion into tree becomes the root.
+        if (tree.length === 0) {
+            this.root = new TreeNode(c1);
+            return true
+        }
         const t2 = tree[p]; // TreeNode found at position p
         if (t2 === null) {
             return false;
@@ -239,8 +220,9 @@ class Tree {
      */
     subseq(c, d) {
         let seq = [];
-        isCFound = false;
+        let isCFound = false;
         for (let node of this.preOrderTraversal()) {
+            console.log("node:", node);
             if (node.wChar === d) {
                 return seq;
             }

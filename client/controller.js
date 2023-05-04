@@ -96,10 +96,10 @@ class Controller {
         // find sequence 
         // insert at next position 
         
-        sequence = this.tree 
-        subseq = sequence.subseq(wchar_prev, wchar_next) 
-        if (length(subseq)===0) { 
-            return sequence.insertBasic(w_char, this.tree.pos(wchar_next))
+        const sequence = this.tree
+        const subseq = sequence.subseq(wchar_prev, wchar_next) 
+        if (subseq.length===0) { 
+            return sequence.insert(w_char, this.tree.pos(wchar_next))
         } else {
             let L  = subseq
             let i = 1 
