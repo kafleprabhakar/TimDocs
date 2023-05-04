@@ -226,7 +226,41 @@ export class Tree {
         return s;
     }
 
+    /**
+     * Returns the part of S between the elements c and d (excluding c and d)
+     * @param {WChar} c 
+     * @param {WChar} d 
+     * @returns Undefined if d is not to be found after c
+     */
     subseq(c, d) {
+        let seq = [];
+        isCFound = false;
+        for (let node of this.preOrderTraversal()) {
+            if (node.wChar === d) {
+                return seq;
+            }
+            if (isCFound) {
+                seq.push(node)
+            }
+            if (node.wChar === c) {
+                isCFound = true;
+            }
+        }
+        return undefined;
+    }
 
+    /**
+     * Marks wChar c at position p as hidden
+     * @param {int} p 
+     * @returns True if successful. False if c at position p was already marked as NOT visible.
+     */
+    delete(p) {
+        let tree = [...this.preOrderTraversal()];
+        if (tree[p].wChar.isVisible === false) {
+            return false;
+        } else {
+            tree[p].wChar.isVisible = false;
+        }
+        return true;
     }
 }
