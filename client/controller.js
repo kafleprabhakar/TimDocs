@@ -1,5 +1,5 @@
-import { WChar, CRDTOp, WId, OpType } from "./utils";
-import { Tree } from "./tree";
+import { WChar, CRDTOp, WId, OpType } from "./utils.js";
+import { Tree } from "./tree.js";
 
 export class Controller {
     constructor(siteId) {

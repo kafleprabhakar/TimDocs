@@ -37,7 +37,7 @@ export class WChar {
     }
 }
 
-const OpType = {
+export const OpType = {
     Insert: "+insert",
     Delete: "+delete"
 }
