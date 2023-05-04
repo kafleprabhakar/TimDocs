@@ -1,7 +1,10 @@
-import { WChar, CRDTOp, WId, OpType } from "./utils.js";
-import { Tree } from "./tree.js";
+// import { WChar, CRDTOp, WId, OpType } from "./utils.js";
+// import { Tree } from "./tree.js";
 
-export class Controller {
+const { WChar, CRDTOp, WId, OpType } = require("./utils.js");
+const { Tree } = require("./tree.js");
+
+class Controller {
     constructor(siteId) {
         this.tree = new Tree();
         this.tick = 0;
@@ -20,7 +23,15 @@ export class Controller {
         const cp = this.tree.ithVisible(pos);
         const cn = this.tree.ithVisible(pos + 1);
         const wid = new WId(this.siteId, this.tick);
-        const wChar = new WChar(wid, c, true, cp.id, cn.id);
+        let cp_id = null;
+        if (cp != undefined) {
+            cp_id = cp.id;
+        }
+        let cn_id = null;
+        if (cp != undefined) {
+            cn_id = cn.id;
+        }
+        const wChar = new WChar(wid, c, true, cp_id, cn_id);
         this.integrateInsert(wChar);
         return new CRDTOp(OpType.Insert, wChar);
     }
@@ -111,4 +122,8 @@ export class Controller {
 
 
     }
+}
+
+module.exports = {
+    Controller: Controller
 }

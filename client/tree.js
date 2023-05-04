@@ -1,7 +1,9 @@
-import { WChar } from "./utils.js";
-import { WId } from "./utils.js";
+// import { WChar } from "./utils.js";
+// import { WId } from "./utils.js";
 
-export class TreeNode {
+const { WChar, WId } = require("./utils.js");
+
+class TreeNode {
     /**
      * 
      * @param {WChar} wChar 
@@ -22,7 +24,7 @@ export class TreeNode {
     }
 }
 
-export class Tree {
+class Tree {
     /**
      * 
      * @param {WId} id 
@@ -266,4 +268,9 @@ export class Tree {
         }
         return true;
     }
+}
+
+module.exports = {
+    Tree: Tree,
+    TreeNode: TreeNode
 }

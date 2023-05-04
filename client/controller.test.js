@@ -1,5 +1,5 @@
-import { Controller } from "./controller.js";
-import { CRDTOp, OpType, WChar, WId } from "./utils.js";
+const { Controller } = require('./controller.js');
+const { CRDTOp, OpType, WChar, WId } = require("./utils.js");
 
 function getCharacter(i) {
     const characters = 'abcdefghijklmnopqrstuvwxyz';

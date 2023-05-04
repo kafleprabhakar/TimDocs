@@ -1,5 +1,5 @@
 // Unique identifier for WChar, as defined in WOOT paper
-export class WId {
+class WId {
     /**
      * 
      * @param {int} numSite 
@@ -12,7 +12,7 @@ export class WId {
 }
 
 // WChar type, as defined in WOOT paper
-export class WChar {
+class WChar {
     /**
      * 
      * @param {WId} id 
@@ -37,12 +37,12 @@ export class WChar {
     }
 }
 
-export const OpType = {
+const OpType = {
     Insert: "+insert",
     Delete: "+delete"
 }
 
-export class CRDTOp {
+class CRDTOp {
     /**
      * 
      * @param {OpType} opType 
@@ -51,4 +51,11 @@ export class CRDTOp {
     constructor(opType, wChar) {
 
     }
+}
+
+module.exports = {
+    WId: WId,
+    WChar: WChar,
+    OpType: OpType,
+    CRDTOp: CRDTOp
 }
