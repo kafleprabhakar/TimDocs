@@ -62,7 +62,7 @@ export class Tree {
     }
 
     /**
-     * Insert wchar
+     * NM, PK: you can ignore this function! This was just for GK's testing purposes.
      * @param {WId} parentNodeId 
      * @param {WId} id 
      * @param {string} c 
@@ -130,6 +130,9 @@ export class Tree {
     /**
      * Insert WChar c into the position that WChar c2 used to be in
      * Position index INCLUDES hidden characters
+     * Example:
+     *  String before: "bd"
+     *  String after calling insert("c", 1) => "bcd"
      * @param {WChar} c1
      * @param {int} p pos(c2)
      * @returns True if inserted correctly
