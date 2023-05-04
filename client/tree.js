@@ -62,7 +62,7 @@ export class Tree {
     }
 
     /**
-     * Insert wchar
+     * NM, PK: you can ignore this function! This was just for GK's testing purposes.
      * @param {WId} parentNodeId 
      * @param {WId} id 
      * @param {string} c 
