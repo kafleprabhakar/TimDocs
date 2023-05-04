@@ -130,6 +130,9 @@ export class Tree {
     /**
      * Insert WChar c into the position that WChar c2 used to be in
      * Position index INCLUDES hidden characters
+     * Example:
+     *  String before: "bd"
+     *  String after calling insert("c", 1) => "bcd"
      * @param {WChar} c1
      * @param {int} p pos(c2)
      * @returns True if inserted correctly
