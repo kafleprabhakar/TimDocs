@@ -18,7 +18,7 @@ function createTestController(siteId, numChars, deleteChars=[]) {
     let prevWId = null;
     for (let i = 0; i < numChars; i++) {
         const thisWId = new WId(siteId, i);
-        testController.tree.insert(null, thisWId, getCharacter(i), true, prevWId, null);
+        testController.tree.insert(new WChar(thisWId, getCharacter(i), true, prevWId, null), i);
         prevWId = thisWId;
     }
     testController.tick = numChars - 1;

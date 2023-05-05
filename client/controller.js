@@ -44,6 +44,7 @@ class Controller {
      */
     generateDelete(pos) {
         const wChar = this.tree.ithVisible(pos);
+        console.log("delete this: ", wChar);
         this.integrateDelete(wChar);
         return new CRDTOp(OpType.Delete, wChar);
     }
@@ -99,7 +100,7 @@ class Controller {
         const sequence = this.tree
         const subseq = sequence.subseq(wchar_prev, wchar_next) 
         if (subseq.length===0) { 
-            return sequence.insert(w_char, this.tree.pos(wchar_next))
+            return sequence.insert(wchar, this.tree.pos(wchar_next))
         } else {
             let L  = subseq
             let i = 1 
@@ -118,7 +119,7 @@ class Controller {
      */ 
     integrateDelete(wChar) {
         // set visible char to false 
-        this.wChar.visible = false // might have to do something more complicated 
+        wChar.visible = false // might have to do something more complicated 
 
 
     }

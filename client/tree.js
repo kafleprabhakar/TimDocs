@@ -95,13 +95,15 @@ class Tree {
     ithVisible(i) {
         let count = 0;
         for (let node of this.preOrderTraversal()) {
-            if (node.wChar.isVisible) {
+            console.log("Node: ", node);
+            if (node.wChar.visible) {
                 if (count === i) {
                     return node.wChar;
                 }
                 count += 1;
             }
         }
+        console.log("count:", count);
         return undefined;
     }
 
@@ -123,7 +125,11 @@ class Tree {
             return true
         }
         const t2 = tree[p]; // TreeNode found at position p
-        if (t2 === null) {
+
+        // Case when you insert to the end of the tree
+        // TODO: clean up code here!!
+        if (t2 === undefined) {
+            tree[tree.length-1].children.push(new TreeNode(c1, tree[tree.length-1].wChar.id));
             return false;
         }
         let t1 = new TreeNode(c1, t2.parent.wChar.id);
@@ -205,7 +211,7 @@ class Tree {
     value() {
         let s = "";
         for (let node of this.preOrderTraversal()) {
-            if (node.wChar.isVisible) {
+            if (node.wChar.visible) {
                 s += node.wChar.c;
             }
         }
@@ -233,7 +239,7 @@ class Tree {
                 isCFound = true;
             }
         }
-        return undefined;
+        return [];
     }
 
     /**
@@ -243,10 +249,10 @@ class Tree {
      */
     delete(p) {
         let tree = [...this.preOrderTraversal()];
-        if (tree[p].wChar.isVisible === false) {
+        if (tree[p].wChar.visible === false) {
             return false;
         } else {
-            tree[p].wChar.isVisible = false;
+            tree[p].wChar.visible = false;
         }
         return true;
     }
