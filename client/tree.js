@@ -82,6 +82,18 @@ class Tree {
      */
     find(id) {
         for (let node of this.preOrderTraversal()) {
+            if (node.wChar.id.numTick === id.numTick) return node.wChar;
+        }
+        return undefined;
+    }
+
+    /**
+     * Returns node with certain ID
+     * @param {WId} id 
+     * @returns 
+     */
+    findNode(id) {
+        for (let node of this.preOrderTraversal()) {
             if (node.wChar.id.numTick === id.numTick) return node;
         }
         return undefined;
@@ -126,19 +138,22 @@ class Tree {
         }
         const t2 = tree[p]; // TreeNode found at position p
         // console.log("T2: ", t2);
-
+        // abDc
         // Case when you insert to the end of the tree
         // TODO: clean up code here!!
         if (t2 === undefined) {
             tree[tree.length-1].children.push(new TreeNode(c1, tree[tree.length-1].wChar.id));
+            tree[tree.length-1].wChar.idNew = c1.id; // TODO: specifically clean up this logic
             return false;
         }
         let t1 = new TreeNode(c1, t2.parent);
         t1.children = t2.children;
         t1.children.unshift(t2);
         t2.children = [];
+        t2.wChar.idPrev = c1.id;
+        t1.wChar.idNew = t2.wChar.id;
         // Need P to know that t1 is its child and NOT t2.
-        const parent = this.find(t2.parent);
+        const parent = this.findNode(t2.parent);
         for (let i = 0; i < parent.children.length; i++) {
             if (parent.children[i] === t2) {
                 parent.children[i] = t1;
@@ -165,6 +180,9 @@ class Tree {
             if (node.wChar.id.isEqual(c.id)) {
                 return i;
             }
+            // if (node === c) {
+            //     return i;
+            // }
             i += 1;
         }
         return -1;
