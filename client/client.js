@@ -60,7 +60,7 @@ export class Client {
             op = this.controller.generateDelete(this.cursorPosition);
         } 
         // send vector clock 
-        this.messenger.broadcastOp(op) 
+        this.messenger.broadcastOp(op);
         // Call broadcast function in messenger to broadcast above CRDT operation `op`
     }
 }

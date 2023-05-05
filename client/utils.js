@@ -49,7 +49,8 @@ class CRDTOp {
      * @param {WChar} wChar 
      */
     constructor(opType, wChar) {
-
+        this.opType = opType;
+        this.wChar = wChar;
     }
 }
 

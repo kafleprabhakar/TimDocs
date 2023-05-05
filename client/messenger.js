@@ -1,3 +1,5 @@
+const {CRDTOp, OpType} = require('./utils.js');
+
 export class Messenger {
     constructor(id, peers) {
         this.me = new Peer(id);
@@ -27,17 +29,22 @@ export class Messenger {
     listenForConnection() {
         this.me.on("connection", (conn) => {
             this.connections[conn.peer] = conn;
-            conn.on("data", (data) => {
-                console.log("Received data", data);
-            });
+            conn.on("data", this.listenForData);
             conn.on("close", () => {
                 console.log("Closed connection with peer", conn.peer);
             })
         });
     }
 
+    /**
+     * 
+     * @param {CRDTOp} data 
+     */
     listenForData(data) {
         console.log('Received data', data);
+        if (data.OpType == OpType.Insert) {
+            
+        }
     }
 
     removePeer(peer) {
@@ -45,10 +52,9 @@ export class Messenger {
     }
 
     broadcast(data) {
-
         for (let key in this.connections) {
             if (key!=this.me) {
-                this.connections[key].send("newchange", (data))
+                this.connections[key].send(data);
             }
         } 
         
