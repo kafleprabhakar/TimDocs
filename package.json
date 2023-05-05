@@ -24,10 +24,18 @@
     "ts-jest": "^29.1.0"
   },
   "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.21.5",
     "jest": "^29.5.0"
   },
   "moduleDirectories": [
     "node_modules",
     "client"
-  ]
+  ],
+  "babel": {
+    "env": {
+      "test": {
+        "plugins": ["@babel/plugin-transform-modules-commonjs"]
+      }
+    }
+  }
 }

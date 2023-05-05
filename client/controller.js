@@ -1,10 +1,10 @@
-// import { WChar, CRDTOp, WId, OpType } from "./utils.js";
-// import { Tree } from "./tree.js";
+import { WChar, CRDTOp, WId, OpType } from "./utils.js";
+import { Tree } from "./tree.js";
 
-const { WChar, CRDTOp, WId, OpType } = require("./utils.js");
-const { Tree } = require("./tree.js");
+// const { WChar, CRDTOp, WId, OpType } = require("./utils.js");
+// const { Tree } = require("./tree.js");
 
-class Controller {
+export class Controller {
     constructor(siteId) {
         this.tree = new Tree();
         this.tick = 0;
@@ -137,6 +137,6 @@ class Controller {
     }
 }
 
-module.exports = {
-    Controller: Controller
-}
+// module.exports = {
+//     Controller: Controller
+// }

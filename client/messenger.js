@@ -1,7 +1,8 @@
-const {CRDTOp, OpType} = require('./utils.js');
+import {CRDTOp, OpType} from './utils.js';
+// const {CRDTOp, OpType} = require('./utils.js');
 
 export class Messenger {
-    constructor(id, peers) {
+    constructor(id, peers, handleFunc) {
         this.me = new Peer(id);
         this.connections = {}
         this.me.on("open", (id) => {
@@ -11,7 +12,8 @@ export class Messenger {
             for (let i = 0; i < peers.length; i++) {
                 this.establishConnection(peers[i])
             }
-        })
+        });
+        this.handleFunc = handleFunc;
     }
 
     establishConnection(peer) {
@@ -42,8 +44,8 @@ export class Messenger {
      */
     listenForData(data) {
         console.log('Received data', data);
-        if (data.OpType == OpType.Insert) {
-            
+        if (data.OpType == OpType.Insert || data.OpType == OpType.Delete) {
+            this.handleFunc(data);
         }
     }
 

@@ -1,9 +1,9 @@
-// import { WChar } from "./utils.js";
-// import { WId } from "./utils.js";
+import { WChar } from "./utils.js";
+import { WId } from "./utils.js";
 
-const { WChar, WId } = require("./utils.js");
+// const { WChar, WId } = require("./utils.js");
 
-class TreeNode {
+export class TreeNode {
     /**
      * 
      * @param {WChar} wChar 
@@ -24,7 +24,7 @@ class TreeNode {
     }
 }
 
-class Tree {
+export class Tree {
     constructor() {
         this.root = null;
     }
@@ -300,7 +300,7 @@ class Tree {
     }
 }
 
-module.exports = {
-    Tree: Tree,
-    TreeNode: TreeNode
-}
+// module.exports = {
+//     Tree: Tree,
+//     TreeNode: TreeNode
+// }
