@@ -20,8 +20,8 @@ class Controller {
      */
     generateInsert(c, pos) {
         this.tick += 1;
-        const cp = this.tree.ithVisible(pos);
-        const cn = this.tree.ithVisible(pos + 1);
+        const cp = this.tree.ithVisible(pos-1);
+        const cn = this.tree.ithVisible(pos);
         const wid = new WId(this.siteId, this.tick);
         let cp_id = null;
         if (cp != undefined) {
@@ -32,7 +32,7 @@ class Controller {
             cn_id = cn.id;
         }
         const wChar = new WChar(wid, c, true, cp_id, cn_id);
-        this.integrateInsert(wChar);
+        this.integrateInsert(wChar, cp_id, cn_id);
         return new CRDTOp(OpType.Insert, wChar);
     }
 
@@ -44,7 +44,6 @@ class Controller {
      */
     generateDelete(pos) {
         const wChar = this.tree.ithVisible(pos);
-        console.log("delete this: ", wChar);
         this.integrateDelete(wChar);
         return new CRDTOp(OpType.Delete, wChar);
     }
@@ -92,15 +91,18 @@ class Controller {
      * @param {WChar} wchar_prev 
      * @param {WChar} wchar_next 
      */
-    integrateInsert(wchar, wchar_prev, wchar_next) {
+    integrateInsert(wchar, wchar_prev_id, wchar_next_id) {
 
         // find sequence 
         // insert at next position 
-        
+        const wchar_prev = this.tree.find(wchar_prev_id);
+        const wchar_next = this.tree.find(wchar_next_id);
+
+
         const sequence = this.tree
         const subseq = sequence.subseq(wchar_prev, wchar_next) 
-        if (subseq.length===0) { 
-            console.log("POS INSERT:", this.tree.pos(wchar_next));
+        // If wchar is in between prev and next, subseq should have 0 length.
+        if (subseq.length===0) {
             return sequence.insert(wchar, this.tree.pos(wchar_next))
         } else {
             let L  = subseq

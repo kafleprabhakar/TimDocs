@@ -39,17 +39,22 @@ test('Insert in new Doc', () => {
     const expectedWChar = new WChar(new WId(1, 0), 'A', true, null, null);
     const expectedOp = new CRDTOp(OpType.Insert, expectedWChar);
 
+    console.log(op);
+
     expect(op).toEqual(expectedOp);
+    expect(testController.tree.value()).toBe('A');
 });
 
 test('Insert in between two characters', () => {
     const testController = createTestController(1, 3);
     const op = testController.generateInsert('A', 1);
+    console.log("Current doc:", testController.tree.value());
 
     const expectedWChar = new WChar(new WId(1, 3), 'A', true, new WId(1, 0), new WId(1, 1));
     const expectedOp = new CRDTOp(OpType.Insert, expectedWChar);
 
     expect(op).toEqual(expectedOp);
+    expect(testController.tree.value()).toBe('aAbc');
 });
 
 

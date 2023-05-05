@@ -95,7 +95,7 @@ class Tree {
     ithVisible(i) {
         let count = 0;
         for (let node of this.preOrderTraversal()) {
-            console.log("Node: ", node);
+            // console.log("Node: ", node);
             if (node.wChar.visible) {
                 if (count === i) {
                     return node.wChar;
@@ -103,7 +103,7 @@ class Tree {
                 count += 1;
             }
         }
-        console.log("count:", count);
+        // console.log("count:", count);
         return undefined;
     }
 
@@ -132,7 +132,7 @@ class Tree {
             tree[tree.length-1].children.push(new TreeNode(c1, tree[tree.length-1].wChar.id));
             return false;
         }
-        let t1 = new TreeNode(c1, t2.parent.wChar.id);
+        let t1 = new TreeNode(c1, t2.parent);
         t1.children = t2.children;
         t1.children.unshift(t2);
         t2.children = [];
@@ -210,7 +210,9 @@ class Tree {
      */
     value() {
         let s = "";
+        let count = 0;
         for (let node of this.preOrderTraversal()) {
+            count += 1
             if (node.wChar.visible) {
                 s += node.wChar.c;
             }
@@ -228,7 +230,7 @@ class Tree {
         let seq = [];
         let isCFound = false;
         for (let node of this.preOrderTraversal()) {
-            console.log("node:", node);
+            // console.log("node:", node);
             if (node.wChar === d) {
                 return seq;
             }
