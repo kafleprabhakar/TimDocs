@@ -1,7 +1,14 @@
+import { Controller } from './controller.js';
 import {CRDTOp, OpType} from './utils.js';
 // const {CRDTOp, OpType} = require('./utils.js');
 
 export class Messenger {
+    /**
+     * 
+     * @param {string} id 
+     * @param {string[]} peers 
+     * @param {Controller} controller 
+     */
     constructor(id, peers, handleFunc) {
         this.me = new Peer(id);
         this.connections = {}
@@ -42,9 +49,11 @@ export class Messenger {
      * 
      * @param {CRDTOp} data 
      */
-    listenForData(data) {
+    listenForData = (data) => {
         console.log('Received data', data);
-        if (data.OpType == OpType.Insert || data.OpType == OpType.Delete) {
+        console.log('Received data optype', data.opType);
+        console.log("Messenger", this);
+        if (data.opType == OpType.Insert || data.opType == OpType.Delete) {
             this.handleFunc(data);
         }
     }

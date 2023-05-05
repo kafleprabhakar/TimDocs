@@ -1,12 +1,13 @@
 import { Messenger } from "./messenger.js";
 import { Controller } from "./controller.js";
+import { OpType } from "./utils.js";
 
 // const { Messenger } = require("./messenger.js");
 // const { Controller } = require("./controller.js");
 
 export class Client {
     constructor(hasEditor) {
-        this.controller = new Controller();
+        //this.controller = new Controller();
         
         // Initialize Messenger
         this.messenger = null;
@@ -26,6 +27,7 @@ export class Client {
         const jsonData = await response.json();
         console.log(jsonData);
         document.getElementById('dummy-p').innerHTML = JSON.stringify(jsonData);
+        this.controller = new Controller(jsonData.me); 
         this.messenger = new Messenger(jsonData.me, jsonData.peers, this.handleRemoteOp);
     }
 
@@ -67,11 +69,12 @@ export class Client {
         // Call broadcast function in messenger to broadcast above CRDT operation `op`
     }
 
+
     /**
      * Handles insert/delete operation from remote peer. Checks if the operation is executable before integrating
      * @param {CRDTOp} op
      */
-    handleRemoteOp(op) {
+    handleRemoteOp = (op) => {
         if (op.opType === OpType.Insert) {
             this.controller.ins(op);
         } else if (op.opType === OpType.Delete) {
