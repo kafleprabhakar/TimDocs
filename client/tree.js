@@ -125,6 +125,7 @@ class Tree {
             return true
         }
         const t2 = tree[p]; // TreeNode found at position p
+        // console.log("T2: ", t2);
 
         // Case when you insert to the end of the tree
         // TODO: clean up code here!!
@@ -136,6 +137,13 @@ class Tree {
         t1.children = t2.children;
         t1.children.unshift(t2);
         t2.children = [];
+        // Need P to know that t1 is its child and NOT t2.
+        const parent = this.find(t2.parent);
+        for (let i = 0; i < parent.children.length; i++) {
+            if (parent.children[i] === t2) {
+                parent.children[i] = t1;
+            }
+        }
         for (let child of t1.children) {
             child.parent = t1.wChar.id;
         }
@@ -151,7 +159,10 @@ class Tree {
     pos(c) {
         let i = 0;
         for (let node of this.preOrderTraversal()) {
-            if (node === c) {
+            // if (node.wChar.c == "b") {
+            //     console.log("pos node:", node);
+            // }
+            if (node.wChar.id.isEqual(c.id)) {
                 return i;
             }
             i += 1;
@@ -246,17 +257,28 @@ class Tree {
 
     /**
      * Marks wChar c at position p as hidden
+     * TODO: Make p the ith visible character
      * @param {int} p 
      * @returns True if successful. False if c at position p was already marked as NOT visible.
      */
     delete(p) {
         let tree = [...this.preOrderTraversal()];
-        if (tree[p].wChar.visible === false) {
-            return false;
-        } else {
-            tree[p].wChar.visible = false;
+        let c = 0;
+        for (let node of this.preOrderTraversal()) {
+            if (node.wChar.visible) {
+                if (c == p) {
+                    node.wChar.visible = false;
+                    return true;
+                }
+                c += 1;
+            }
         }
-        return true;
+        // if (tree[p].wChar.visible === false) {
+        //     return false;
+        // } else {
+        //     tree[p].wChar.visible = false;
+        // }
+        return false;
     }
 }
 

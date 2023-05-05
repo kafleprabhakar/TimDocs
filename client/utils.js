@@ -9,6 +9,10 @@ class WId {
         this.numSite = numSite;
         this.numTick = numTick;
     }
+
+    isEqual(wId) {
+        return this.numSite === wId.numSite && this.numTick === wId.numTick;
+    }
 }
 
 // WChar type, as defined in WOOT paper

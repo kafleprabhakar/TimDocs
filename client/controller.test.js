@@ -49,6 +49,8 @@ test('Insert in between two characters', () => {
     const testController = createTestController(1, 3);
     const op = testController.generateInsert('A', 1);
     console.log("Current doc:", testController.tree.value());
+    console.log("Current tree:", testController.tree.root);
+    console.log("Current tree child:", testController.tree.root.children[0]);
 
     const expectedWChar = new WChar(new WId(1, 3), 'A', true, new WId(1, 0), new WId(1, 1));
     const expectedOp = new CRDTOp(OpType.Insert, expectedWChar);
@@ -60,11 +62,13 @@ test('Insert in between two characters', () => {
 
 test('Insert in between two characters with deleted characters', () => {
     const testController = createTestController(1, 4, [1, 2]);
+    expect(testController.tree.value()).toBe('ad');
     const op = testController.generateInsert('A', 1);
 
     const expectedWChar = new WChar(new WId(1, 4), 'A', true, new WId(1, 0), new WId(1, 3));
     const expectedOp = new CRDTOp(OpType.Insert, expectedWChar);
 
+    expect(testController.tree.value()).toBe('aAd');
     expect(op).toEqual(expectedOp);
 });
 
@@ -72,6 +76,7 @@ test('Insert in between two characters with deleted characters', () => {
 test('Delete characters', () => {
     const testController = createTestController(1, 4);
     const op1 = testController.generateDelete(1);
+    expect(testController.tree.value()).toBe('acd');
 
     const expectedWChar1 = new WChar(new WId(1, 1), 'b', false, new WId(1, 0), new WId(1, 2));
     const expectedOp1 = new CRDTOp(OpType.Delete, expectedWChar1);
@@ -79,6 +84,7 @@ test('Delete characters', () => {
     expect(op1).toEqual(expectedOp1);
     // Delete one more
     const op2 = testController.generateDelete(1);
+    expect(testController.tree.value()).toBe('ad');
 
     const expectedWChar2 = new WChar(new WId(1, 2), 'c', false, new WId(1, 1), new WId(1, 3));
     const expectedOp2 = new CRDTOp(OpType.Delete, expectedWChar2);

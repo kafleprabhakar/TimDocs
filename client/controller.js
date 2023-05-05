@@ -44,6 +44,7 @@ class Controller {
      */
     generateDelete(pos) {
         const wChar = this.tree.ithVisible(pos);
+        console.log("The target character: ", wChar.c);
         this.integrateDelete(wChar);
         return new CRDTOp(OpType.Delete, wChar);
     }
@@ -122,7 +123,14 @@ class Controller {
      */ 
     integrateDelete(wChar) {
         // set visible char to false 
-        wChar.visible = false // might have to do something more complicated 
+        const p = this.tree.pos(wChar);
+        console.log('Position: ', p);
+        this.tree.delete(p);
+        // console.log("Wchar id in integratedel", this.tree.find(wChar.id));
+        // this.tree.find(wChar.id).visible = false;
+        console.log("Wchar id in integratedel after invisible", this.tree.find(wChar.id));
+        
+        //wChar.visible = false // might have to do something more complicated 
 
 
     }
