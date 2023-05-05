@@ -8,7 +8,7 @@ class Controller {
     constructor(siteId) {
         this.tree = new Tree();
         this.tick = 0;
-        this.sideId = siteId;
+        this.siteId = siteId;
         this.bufferPool = [];
     }
     /**
@@ -100,6 +100,7 @@ class Controller {
         const sequence = this.tree
         const subseq = sequence.subseq(wchar_prev, wchar_next) 
         if (subseq.length===0) { 
+            console.log("POS INSERT:", this.tree.pos(wchar_next));
             return sequence.insert(wchar, this.tree.pos(wchar_next))
         } else {
             let L  = subseq
