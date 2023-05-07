@@ -6,12 +6,9 @@ import { OpType } from "./utils.js";
 // const { Controller } = require("./controller.js");
 
 export class Client {
-    constructor(hasEditor) {
-        //this.controller = new Controller();
-        
-        // Initialize Messenger
-        this.messenger = null;
-        this.initMessenger();
+    constructor(hasEditor, id, peers) {
+        this.controller = new Controller(id); 
+        this.messenger = new Messenger(id, peers, this.handleRemoteOp);
 
         // Initialize Editor
         this.hasEditor = hasEditor; // Will be useful if we decide to store everything in the server later on
@@ -22,14 +19,6 @@ export class Client {
             this.editor = null;
     }
 
-    async initMessenger() {
-        const response = await fetch("http://localhost:1800");
-        const jsonData = await response.json();
-        console.log(jsonData);
-        this.controller = new Controller(jsonData.me); 
-        this.messenger = new Messenger(jsonData.me, jsonData.peers, this.handleRemoteOp);
-    }
-
     initEditor() {
         const editor = document.getElementById("editor");
         this.editor = CodeMirror.fromTextArea(editor, {
@@ -38,6 +27,16 @@ export class Client {
             lineNumbers: false
         });
         this.bindKeyboardActions();
+    }
+
+    /**
+     * 
+     * @param {boolean} hasEditor 
+     */
+    static async makeClient(hasEditor) {
+        const response = await fetch("http://localhost:1800");
+        const jsonData = await response.json();
+        return new Client(hasEditor, jsonData.me, jsonData.peers);
     }
 
     bindKeyboardActions() {
