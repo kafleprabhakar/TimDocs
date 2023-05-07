@@ -1,6 +1,3 @@
-// import { WChar } from "./utils.js";
-// import { WId } from "./utils.js";
-
 const { WChar, WId } = require("./utils.js");
 
 class TreeNode {
@@ -45,46 +42,28 @@ class Tree {
     }
 
     /**
-     * Generates right to left order of the tree
-     * @param {TreeNode} node 
-     */
-    *postOrderTraversal(node = this.root) {
-        if (node) {
-            if (node.children.length) {
-                for (let child of node.children) {
-                    yield* this.postOrderTraversal(child);
-                }
-            }
-            yield node;
-        }
-    }
-
-    /**
-     * Completely remove wchar with certain ID
-     * @param {WId} id 
-     * @returns 
-     */
-    remove(id) {
-        for (let node of this.preOrderTraversal()) {
-            const filtered = node.children.filter(c => c.wChar.id.numTick !== id.numTick);
-            if (filtered.length !== node.children.length) {
-                node.children = filtered;
-                return true
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns node with certain ID
+     * Returns WChar with certain ID
      * @param {WId} id 
      * @returns 
      */
     find(id) {
-        for (let node of this.preOrderTraversal()) {
-            if (node.wChar.id.numTick === id.numTick) return node;
+        const node = this.findNode(id);
+        if (node != null) {
+            return node.wChar;
         }
-        return undefined;
+        return null;
+    }
+
+    /**
+     * Internal use only. Returns the TreeNode with certain ID.
+     * @param {WId} id 
+     * @returns TreeNode
+     */
+    findNode(id) {
+        for (let node of this.preOrderTraversal()) {
+            if (node.wChar.id.isEqual(id)) return node;
+        }
+        return null;
     }
 
     /**
@@ -95,7 +74,6 @@ class Tree {
     ithVisible(i) {
         let count = 0;
         for (let node of this.preOrderTraversal()) {
-            // console.log("Node: ", node);
             if (node.wChar.visible) {
                 if (count === i) {
                     return node.wChar;
@@ -103,7 +81,6 @@ class Tree {
                 count += 1;
             }
         }
-        // console.log("count:", count);
         return undefined;
     }
 
@@ -111,61 +88,92 @@ class Tree {
      * Insert WChar c into the position that WChar c2 used to be in
      * Position index INCLUDES hidden characters
      * Example:
-     *  String before: "bd"
-     *  String after calling insert("c", 1) => "bcd"
+     *   String before: "bd"
+     *   String after calling insert("c", 1) => "bcd"
      * @param {WChar} c1
-     * @param {int} p pos(c2)
+     * @param {number} p pos(c2)
      * @returns True if inserted correctly
      */
     insert(c1, p) {
         let tree = [...this.preOrderTraversal()];
         // First insertion into tree becomes the root.
-        if (tree.length === 0) {
+        if (tree.length == 0) {
             this.root = new TreeNode(c1);
-            return true
+            return true;
         }
-        const t2 = tree[p]; // TreeNode found at position p
-        // console.log("T2: ", t2);
 
-        // Case when you insert to the end of the tree
-        // TODO: clean up code here!!
-        if (t2 === undefined) {
-            tree[tree.length-1].children.push(new TreeNode(c1, tree[tree.length-1].wChar.id));
+        if (p > tree.length) {
             return false;
         }
+
+        // Case 1: Insert at the end of the tree. 
+        //         Append to last node's children.
+        //         Update idNew.
+        let t2 = null;
+        if (p == tree.length) {
+            console.log("hit here! for", c1.c);
+            t2 = tree[tree.length-1];
+            if (t2.children.length == 0) {
+                t2.wChar.idNew = c1.id;
+            } else {
+                t2.children[t2.children.length-1].wChar.idNew = c1.id;
+            }
+            t2.children.push(new TreeNode(c1, t2.wChar.id));
+            return true;
+        }
+
+        // Case 2: Insert anywhere else. Swap such that:
+        //      parent           parent
+        //         |               |
+        //        t2    becomes    t1
+        //      / |  \          / / | \
+        //     t3 t4 t5       t2 t3 t4 t5
+        t2 = tree[p];
         let t1 = new TreeNode(c1, t2.parent);
+        // Change root if t2 was root
+        if (this.root.wChar.id === t2.wChar.id) {
+            this.root = t1;
+        }
+        if (t2.parent != null) {
+            const t2Parent = this.findNode(t2.parent);
+            for (let i = 0; i < t2Parent.children.length; i++) {
+                if (t2Parent.children[i].wChar.id === t2.wChar.id) {
+                    t2Parent.children[i] = t1;
+                }
+            }
+        }
+        // t1 takes on t2's children. t2 becomes t1's first child.
         t1.children = t2.children;
         t1.children.unshift(t2);
         t2.children = [];
-        // Need P to know that t1 is its child and NOT t2.
-        const parent = this.find(t2.parent);
-        for (let i = 0; i < parent.children.length; i++) {
-            if (parent.children[i] === t2) {
-                parent.children[i] = t1;
-            }
-        }
         for (let child of t1.children) {
             child.parent = t1.wChar.id;
         }
+        // Update preceding (if existing) and next nodes' idPrev and idNew.
+        if (p > 0) {
+            tree[p-1].wChar.idNew = t1.wChar.id;
+        }
+        tree[p+1].wChar.idPrev = t1.wChar.id;
+
         return true;
     }
 
     /**
      * Gets index of WChar c
-     * Index INCLUDES hidden characters
+     * Returned index does NOT include hidden characters
      * @param {WChar} c 
-     * @returns Index of WChar c (-1 if not found)
+     * @returns Returns -1 if not found OR c is NOT visible.
      */
     pos(c) {
-        let i = 0;
+        let i = -1;
         for (let node of this.preOrderTraversal()) {
-            // if (node.wChar.c == "b") {
-            //     console.log("pos node:", node);
-            // }
+            if (node.wChar.visible == false) {
+                continue;
+            }
+            i += 1;
             if (node.wChar.id.isEqual(c.id)) {
                 return i;
             }
-            i += 1;
         }
         return -1;
     }
@@ -221,9 +229,7 @@ class Tree {
      */
     value() {
         let s = "";
-        let count = 0;
         for (let node of this.preOrderTraversal()) {
-            count += 1
             if (node.wChar.visible) {
                 s += node.wChar.c;
             }
@@ -241,7 +247,6 @@ class Tree {
         let seq = [];
         let isCFound = false;
         for (let node of this.preOrderTraversal()) {
-            // console.log("node:", node);
             if (node.wChar === d) {
                 return seq;
             }
@@ -257,7 +262,7 @@ class Tree {
 
     /**
      * Marks wChar c at position p as hidden
-     * TODO: Make p the ith visible character
+     * IMPORTANT: p is the ith VISIBLE character
      * @param {int} p 
      * @returns True if successful. False if c at position p was already marked as NOT visible.
      */
@@ -273,11 +278,6 @@ class Tree {
                 c += 1;
             }
         }
-        // if (tree[p].wChar.visible === false) {
-        //     return false;
-        // } else {
-        //     tree[p].wChar.visible = false;
-        // }
         return false;
     }
 }
