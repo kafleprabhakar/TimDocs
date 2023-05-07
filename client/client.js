@@ -26,7 +26,6 @@ export class Client {
         const response = await fetch("http://localhost:1800");
         const jsonData = await response.json();
         console.log(jsonData);
-        document.getElementById('dummy-p').innerHTML = JSON.stringify(jsonData);
         this.controller = new Controller(jsonData.me); 
         this.messenger = new Messenger(jsonData.me, jsonData.peers, this.handleRemoteOp);
     }
