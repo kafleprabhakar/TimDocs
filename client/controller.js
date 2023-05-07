@@ -1,10 +1,10 @@
-// import { WChar, CRDTOp, WId, OpType } from "./utils.js";
-// import { Tree } from "./tree.js";
+import { WChar, CRDTOp, WId, OpType } from "./utils.js";
+import { Tree } from "./tree.js";
 
-const { WChar, CRDTOp, WId, OpType } = require("./utils.js");
-const { Tree } = require("./tree.js");
+// const { WChar, CRDTOp, WId, OpType } = require("./utils.js");
+// const { Tree } = require("./tree.js");
 
-class Controller {
+export class Controller {
     constructor(siteId) {
         this.tree = new Tree();
         this.tick = 0;
@@ -104,15 +104,16 @@ class Controller {
         const subseq = sequence.subseq(wchar_prev, wchar_next) 
         // If wchar is in between prev and next, subseq should have 0 length.
         if (subseq.length===0) {
+            console.log("Position: ", this.tree.pos(wchar_next));
             return sequence.insert(wchar, this.tree.pos(wchar_next))
         } else {
             let L  = subseq
             let i = 1 
             // TODO: ADD IN CLOCKS check if site is same then clock for 1 has to be less than 2
-            while (i < length(L) -1 && (L[i].siteId<=wchar.siteId)){ 
+            while (i < L.length -1 && (L[i].siteId<=wchar.siteId)){ 
                 i+=1
             }
-            return this.integrateInsert(wchar, L[i-1],L[i])
+            return this.integrateInsert(wchar, L[i-1].wChar.id,L[i].wChar.id);
         }
     }
 
@@ -136,6 +137,6 @@ class Controller {
     }
 }
 
-module.exports = {
-    Controller: Controller
-}
+// module.exports = {
+//     Controller: Controller
+// }

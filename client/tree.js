@@ -1,4 +1,5 @@
-const { WChar, WId } = require("./utils.js");
+import { WChar } from "./utils.js";
+import { WId } from "./utils.js";
 
 class TreeNode {
     /**
@@ -21,7 +22,7 @@ class TreeNode {
     }
 }
 
-class Tree {
+export class Tree {
     constructor() {
         this.root = null;
     }
@@ -282,7 +283,7 @@ class Tree {
     }
 }
 
-module.exports = {
-    Tree: Tree,
-    TreeNode: TreeNode
-}
+// module.exports = {
+//     Tree: Tree,
+//     TreeNode: TreeNode
+// }
