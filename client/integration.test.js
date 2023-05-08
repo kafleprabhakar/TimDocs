@@ -96,6 +96,8 @@ test('Sync manual inserts', async () => {
     } else {
         expectedStr = 'bdca';
     }
+    global.expected = expectedStr;
+    console.log("Expected:", expectedStr);
     expect(c1.controller.tree.value()).toBe(expectedStr);
     expect(c2.controller.tree.value()).toBe(expectedStr);
 });

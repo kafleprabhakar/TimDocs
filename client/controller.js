@@ -45,7 +45,6 @@ export class Controller {
      */
     generateDelete(pos) {
         const wChar = this.tree.ithVisible(pos);
-        console.log("The target character: ", wChar.c);
         this.integrateDelete(wChar);
         return new CRDTOp(OpType.Delete, wChar);
     }
@@ -83,7 +82,6 @@ export class Controller {
         if (op.opType == OpType.Delete) {
             return this.tree.contains(op.wChar);
         } else {
-            console.log("op isExecutable:", op);
             return (op.wChar.idPrev === null || this.tree.contains(this.tree.find(op.wChar.idPrev)))
                     && (op.wChar.idPrev === null || this.tree.contains(this.tree.find(op.wChar.idNew)));
         }
@@ -113,29 +111,30 @@ export class Controller {
         console.log("sub", subseq);
         // If wchar is in between prev and next, subseq should have 0 length.
         if (subseq.length == 0) {
-            return sequence.insert(wchar, this.tree.pos(wchar_next, false));
+            const posi = this.tree.pos(wchar_next, false);
+            return sequence.insert(wchar, posi);
         } else {
             let L = [];
-            L = subseq;
-            // L.push(wchar_prev);
-            // const c_p_pos = this.tree.pos(wchar_prev, false);
-            // const c_n_pos = this.tree.pos(wchar_next, false);
-            // for (let wc of subseq) {
-            //     let dPrevPos = this.tree.pos(this.tree.find(wc.idPrev), false);
-            //     let dNextPos = this.tree.pos(this.tree.find(wc.idNew), false);
-            //     if (dPrevPos <= c_p_pos && c_n_pos <= dNextPos) {
-            //         subseq.push(wc);
-            //     }
-            // }
-            // L.push(wchar_next);
+            L.push(wchar_prev);
+            const c_p_pos = this.tree.pos(wchar_prev, false);
+            const c_n_pos = this.tree.pos(wchar_next, false);
+            for (let wc of subseq) {
+                // TODO: ???
+                if(wc.idPrev == null || wc.idNew == null) {
+                    L.push(wc);
+                    continue;
+                }
+                let dPrevPos = this.tree.pos(this.tree.find(wc.idPrev), false);
+                let dNextPos = this.tree.pos(this.tree.find(wc.idNew), false);
+                if (dPrevPos <= c_p_pos && c_n_pos <= dNextPos) {
+                    L.push(wc);
+                }
+            }
+            L.push(wchar_next);
             let i = 1;
             // TODO: ADD IN CLOCKS check if site is same then clock for 1 has to be less than 2
             while (i < L.length - 1 && (L[i].id.isLessThan(wchar.id))){ 
                 i += 1;
-            }
-            // Handling the case where there's only 1 char in the subset
-            if (i == 1) {
-                return this.integrateInsert(wchar, L[i-1].id, L[i-1].id);
             }
             return this.integrateInsert(wchar, L[i-1].id, L[i].id);
         }

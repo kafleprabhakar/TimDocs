@@ -93,7 +93,6 @@ export class Tree {
      * @returns True if inserted correctly
      */
     insert(c1, p) {
-        console.log("p:", p);
         let tree = [...this.preOrderTraversal()];
         // First insertion into tree becomes the root.
         if (tree.length == 0) {
@@ -121,7 +120,6 @@ export class Tree {
         //      / |  \          / / | \
         //     t3 t4 t5       t2 t3 t4 t5
         t2 = tree[p];
-        console.log("P", p);
         let t1 = new TreeNode(c1, t2.parent);
         // Change root if t2 was root
         if (this.root.wChar.id === t2.wChar.id) {
@@ -163,7 +161,6 @@ export class Tree {
                 continue;
             }
             i += 1;
-            console.log('node',node);
             if (node.wChar.id.isEqual(c.id)) {
                 return i;
             }
