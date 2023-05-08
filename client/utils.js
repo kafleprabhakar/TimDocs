@@ -24,7 +24,7 @@ export class WId {
      * @param {WId} wId 
      */
     isLessThan(wId) {
-        const siteCompare = this.numSite.localeCompare(wId.numSite);
+        const siteCompare = this.numSite.toString().localeCompare(wId.numSite);
         return (siteCompare === -1) || (siteCompare === 0 && this.numTick < wId.numTick);
     }
 }

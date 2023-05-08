@@ -113,7 +113,13 @@ export class Controller {
         if (subseq.length == 0) {
             return sequence.insert(wchar, this.tree.pos(wchar_next, false));
         } else {
-            let L = subseq;
+            let L = [];
+            // L = subseq;
+            L.push(wchar_prev);
+            for(let wc of subseq) {
+                L.push(wc);
+            }
+            L.push(wchar_next);
             let i = 1;
             // TODO: ADD IN CLOCKS check if site is same then clock for 1 has to be less than 2
             while (i < L.length - 1 && (L[i].id.isLessThan(wchar.id))){ 
