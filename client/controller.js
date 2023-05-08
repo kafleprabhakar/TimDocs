@@ -7,7 +7,7 @@ import { Tree } from "./tree.js";
 export class Controller {
     constructor(siteId) {
         this.tree = new Tree();
-        this.tick = 0;
+        this.tick = -1;
         this.siteId = siteId;
         this.bufferPool = [];
     }
@@ -32,6 +32,7 @@ export class Controller {
             cn_id = cn.id;
         }
         const wChar = new WChar(wid, c, true, cp_id, cn_id);
+        
         this.integrateInsert(wChar, cp_id, cn_id);
         return new CRDTOp(OpType.Insert, wChar);
     }
@@ -59,6 +60,7 @@ export class Controller {
         } else {
             this.bufferPool.push(op);
         }
+        
     }
 
     /**

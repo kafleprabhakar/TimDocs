@@ -56,8 +56,10 @@ export class Tree {
         if (id == null) {
             return null;
         }
+        
         for (let node of this.preOrderTraversal()) {
-            if (node.wChar.id.isEqual(id)) return node;
+            
+            if (id.isEqual(node.wChar.id)) return node;
         }
         return null;
     }
@@ -119,6 +121,7 @@ export class Tree {
         //      / |  \          / / | \
         //     t3 t4 t5       t2 t3 t4 t5
         t2 = tree[p];
+        console.log("P", p);
         let t1 = new TreeNode(c1, t2.parent);
         // Change root if t2 was root
         if (this.root.wChar.id === t2.wChar.id) {
@@ -160,6 +163,7 @@ export class Tree {
                 continue;
             }
             i += 1;
+            console.log('node',node);
             if (node.wChar.id.isEqual(c.id)) {
                 return i;
             }
