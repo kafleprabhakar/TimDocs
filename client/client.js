@@ -9,7 +9,7 @@ export class Client {
     constructor(hasEditor, id, peers) {
         this.controller = new Controller(id); 
         this.messenger = new Messenger(id, peers, this.handleRemoteOp);
-
+        this.buffer = []
         // Initialize Editor
         this.hasEditor = hasEditor; // Will be useful if we decide to store everything in the server later on
         this.cursorPosition = 0;
@@ -82,30 +82,68 @@ export class Client {
 
 
     /**
+     * 
+     * Checks preconditions of operations before executing them (concurrency)
+     * @param {CRDTOp} op 
+     */
+    isExecutable = (op) => {
+        let c = op.wChar
+        if (op.opType === OpType.Delete){
+            return this.controller.tree.contains(c)
+        } else {
+            return this.controller.tree.contains(this.tree.find(c.idPrev)) && 
+            this.controller.tree.contains(this.tree.find(c.idNew))
+        }
+    }
+
+
+     /**
+     * 
+     * Add to "buffer pool"
+     * @param {CRDTOp} op 
+     */
+    addBuffer = (op) => {
+        this.buffer.push(op);
+    }
+
+    /**
      * Handles insert/delete operation from remote peer. Checks if the operation is executable before integrating
      * @param {CRDTOp} op
      */
     handleRemoteOp = (op) => {
-        if (op.opType === OpType.Insert) {
-            this.controller.ins(op); 
-            //let text = op.wChar.c; 
+
+        this.addBuffer(op);
+
+        while(this.buffer.length!=0){
+            let thisop = op;
+            if (this.isExecutable(this.buffer.pop())){
+                thisop = op;
+            }
+
+            if (op.opType === OpType.Insert) {
+                this.controller.ins(op); 
+                //let text = op.wChar.c; 
+                
+                //let transaction = view.state.update({changes: {from: id, insert: text}})
+                //console.log(transaction.state.doc.toString()) // "0123"
+                // At this point the view still shows the old state.
+                //view.dispatch(transaction)
+                // apply this text 
+                // create a buffer of incoming and ticks 
+                // create counts of client's ticks that it's received 
+            } else if (op.opType === OpType.Delete) {
+                this.controller.del(op);
+            }
             let id = op.wChar.id;
-            console.log("id", id);
-            //console.log("text", text);
-            //let text = this.editor.getValue();
-            // edit the text, for example  
-            // set the text back to the editor
+                console.log("id", id);
+                //console.log("text", text);
+                //let text = this.editor.getValue();
+                // edit the text, for example  
+                // set the text back to the editor
             if (this.hasEditor)
                 this.editor.setValue(this.controller.tree.value());
-            //let transaction = view.state.update({changes: {from: id, insert: text}})
-            //console.log(transaction.state.doc.toString()) // "0123"
-            // At this point the view still shows the old state.
-            //view.dispatch(transaction)
-            // apply this text 
-            // create a buffer of incoming and ticks 
-            // create counts of client's ticks that it's received 
-        } else if (op.opType === OpType.Delete) {
-            this.controller.del(op);
         }
-    }
+        }
+        
+        
 }
