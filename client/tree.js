@@ -91,6 +91,7 @@ export class Tree {
      * @returns True if inserted correctly
      */
     insert(c1, p) {
+        console.log("p:", p);
         let tree = [...this.preOrderTraversal()];
         // First insertion into tree becomes the root.
         if (tree.length == 0) {
@@ -150,7 +151,7 @@ export class Tree {
      */
     pos(c, checkVisible = true) {
         let i = -1;
-        const tree = this.preOrderTraversal();
+        const tree = [...this.preOrderTraversal()];
         if (c == null) {
             return tree.length;
         }
