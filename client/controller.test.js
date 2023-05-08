@@ -78,7 +78,7 @@ test('Delete characters', () => {
     const op1 = testController.generateDelete(1);
     expect(testController.tree.value()).toBe('acd');
 
-    const expectedWChar1 = new WChar(new WId(1, 1), 'b', false, new WId(1, 0), new WId(1, 2));
+    const expectedWChar1 = new WChar(new WId(1, 1), 'b', false, new WId(1, 0), null);
     const expectedOp1 = new CRDTOp(OpType.Delete, expectedWChar1);
 
     expect(op1).toEqual(expectedOp1);
@@ -86,7 +86,7 @@ test('Delete characters', () => {
     const op2 = testController.generateDelete(1);
     expect(testController.tree.value()).toBe('ad');
 
-    const expectedWChar2 = new WChar(new WId(1, 2), 'c', false, new WId(1, 1), new WId(1, 3));
+    const expectedWChar2 = new WChar(new WId(1, 2), 'c', false, new WId(1, 1), null);
     const expectedOp2 = new CRDTOp(OpType.Delete, expectedWChar2);
 
     expect(op2).toEqual(expectedOp2);
@@ -103,7 +103,7 @@ test('Mix of insert and delete', () => {
     
     // Delete one
     const op2 = testController.generateDelete(1);
-    const expectedWChar2 = new WChar(new WId(1, 0), 'a', false, new WId(1, 4), new WId(1, 1));
+    const expectedWChar2 = new WChar(new WId(1, 0), 'a', false, null, null);
     const expectedOp2 = new CRDTOp(OpType.Delete, expectedWChar2);
     expect(op2).toEqual(expectedOp2);
 

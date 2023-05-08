@@ -12,14 +12,6 @@ class TreeNode {
         this.parent = parent;
         this.children = []; 
     }
-
-    get isLeaf() {
-        return this.children.length === 0;
-    }
-
-    get hasChildren() {
-        return !this.isLeaf;
-    }
 }
 
 export class Tree {
@@ -61,6 +53,9 @@ export class Tree {
      * @returns TreeNode
      */
     findNode(id) {
+        if (id == null) {
+            return null;
+        }
         for (let node of this.preOrderTraversal()) {
             if (node.wChar.id.isEqual(id)) return node;
         }
@@ -109,15 +104,9 @@ export class Tree {
 
         // Case 1: Insert at the end of the tree. 
         //         Append to last node's children.
-        //         Update idNew.
         let t2 = null;
         if (p == tree.length) {
             t2 = tree[tree.length-1];
-            if (t2.children.length == 0) {
-                t2.wChar.idNew = c1.id;
-            } else {
-                t2.children[t2.children.length-1].wChar.idNew = c1.id;
-            }
             t2.children.push(new TreeNode(c1, t2.wChar.id));
             return true;
         }
@@ -149,11 +138,6 @@ export class Tree {
         for (let child of t1.children) {
             child.parent = t1.wChar.id;
         }
-        // Update preceding (if existing) and next nodes' idPrev and idNew.
-        if (p > 0) {
-            tree[p-1].wChar.idNew = t1.wChar.id;
-        }
-        tree[p+1].wChar.idPrev = t1.wChar.id;
 
         return true;
     }

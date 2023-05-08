@@ -104,19 +104,23 @@ export class Controller {
             wchar_next = this.tree.find(wchar_next_id);
         }
 
-        const sequence = this.tree
-        const subseq = sequence.subseq(wchar_prev, wchar_next) 
+        const sequence = this.tree;
+        const subseq = sequence.subseq(wchar_prev, wchar_next);
         // If wchar is in between prev and next, subseq should have 0 length.
-        if (subseq.length===0) {
-            return sequence.insert(wchar, this.tree.pos(wchar_next, false))
+        if (subseq.length == 0) {
+            return sequence.insert(wchar, this.tree.pos(wchar_next, false));
         } else {
-            let L  = subseq
-            let i = 1 
+            let L = subseq;
+            let i = 1;
             // TODO: ADD IN CLOCKS check if site is same then clock for 1 has to be less than 2
-            while (i < L.length -1 && (L[i].siteId<=wchar.siteId)){ 
-                i+=1
+            while (i < L.length - 1 && (L[i].siteId<=wchar.siteId)){ 
+                i += 1;
             }
-            return this.integrateInsert(wchar, L[i-1].wChar.id,L[i].wChar.id);
+            if(L[i]==undefined){
+                console.log("L:",L);
+                console.log("i:", i);
+            }
+            return this.integrateInsert(wchar, L[i-1].wChar.id, L[i].wChar.id);
         }
     }
 

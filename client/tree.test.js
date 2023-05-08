@@ -12,14 +12,13 @@ function getCharacter(i) {
  */
 function getIDSequence(tree) {
     const sequence = [];
+    let toPush = "";
     for (let node of tree.preOrderTraversal()) {
         toPush = "";
         if (node.wChar.idPrev != null) {
             toPush += node.wChar.idPrev.numTick;
         }
-        toPush += ",";
-        toPush += node.wChar.id.numTick;
-        toPush += ",";
+        toPush += "," + node.wChar.id.numTick + ",";
         if (node.wChar.idNew != null) {
             toPush += node.wChar.idNew.numTick;
         }
@@ -30,23 +29,17 @@ function getIDSequence(tree) {
 
 /**
  * Generates the correct order of idPrev and idNew given some sequence.
- * @param {[number]} correctOrder 
+ * @param {[[string, string, string]]} correctOrder 
  * @returns 
  */
 function correctIDSequence(correctOrder) {
     const sequence = [];
+    let toPush = "";
     for (let i = 0; i < correctOrder.length; i++) {
-        id = correctOrder[i];
-        toPush = "";
-        if (i > 0) {
-            toPush += correctOrder[i-1];
-        }
-        toPush += ",";
-        toPush += id;
-        toPush += ",";
-        if (i < correctOrder.length - 1) {
-            toPush += correctOrder[i+1];
-        }
+        let prev = correctOrder[i][0];
+        let me = correctOrder[i][1];
+        let next = correctOrder[i][2];
+        toPush = prev + "," + me + "," + next;
         sequence.push(toPush);
     }
     return sequence;
@@ -77,6 +70,7 @@ test('Insert into an empty tree', () => {
     expect(testTree.value()).toBe("a");
     expect(testTree.root.wChar.c).toBe("a");
     expect(testTree.root.parent).toBe(null);
+    expect(getIDSequence(testTree)).toStrictEqual(correctIDSequence([["", "0", ""]]));
 })
 
 test('Insert at the beginning of the tree', () => {
@@ -87,6 +81,7 @@ test('Insert at the beginning of the tree', () => {
     expect(testTree.value()).toBe("Aabc");
     expect(testTree.find(new WId(1, 3))).toBeInstanceOf(WChar);
     expect(testTree.find(new WId(1, 3)).c).toBe("A");
+    expect(getIDSequence(testTree)).toStrictEqual(correctIDSequence([["", "3", "0"], ["", "0", ""], ["0", "1", ""], ["1", "2", ""]]));
 })
 
 test('Insert in the middle of the tree', () => {
@@ -96,6 +91,7 @@ test('Insert in the middle of the tree', () => {
     testTree.insert(c, 1);
     expect(testTree.value()).toBe("aAbc");
     expect(testTree.pos(c)).toBe(1);
+    expect(getIDSequence(testTree)).toStrictEqual(correctIDSequence([["", "0", ""], ["0", "3", "1"], ["0", "1", ""], ["1", "2", ""]]));
 })
 
 test('Insert at the end of the tree', () => {
@@ -103,30 +99,34 @@ test('Insert at the end of the tree', () => {
     expect(testTree.value()).toBe("abc");
     testTree.insert(new WChar(new WId(1, 3), "A", true, new WId(1, 2), null), 3);
     expect(testTree.value()).toBe("abcA");
+    expect(getIDSequence(testTree)).toStrictEqual(correctIDSequence([["", "0", ""], ["0", "1", ""], ["1", "2", ""], ["2", "3", ""]]));
 })
 
 test('Delete 2 chars from the tree, insert in beginning', () => {
     const testTree = createTestTree(5, [1, 2]);
     expect(testTree.value()).toBe("ace");
-    const c = new WChar(new WId(1, 3), "A", true, null, new WId(1, 0))
+    const c = new WChar(new WId(1, 5), "A", true, null, new WId(1, 0))
     testTree.insert(c, 0);
     expect(testTree.value()).toBe("Aace");
+    expect(getIDSequence(testTree)).toStrictEqual(correctIDSequence([["", "5", "0"], ["", "0", ""], ["0", "1", ""], ["1", "2", ""], ["2", "3", ""], ["3", "4", ""]]));
 }) 
 
 test('Delete 2 chars from the tree, insert in middle', () => {
     const testTree = createTestTree(5, [1, 2]);
     expect(testTree.value()).toBe("ace");
-    const c = new WChar(new WId(1, 3), "A", true, new WId(1, 0), new WId(1, 1));
+    const c = new WChar(new WId(1, 5), "A", true, new WId(1, 0), new WId(1, 2));
     testTree.insert(c, 1);
     expect(testTree.value()).toBe("aAce");
+    expect(getIDSequence(testTree)).toStrictEqual(correctIDSequence([["", "0", ""], ["0", "5", "2"], ["0", "1", ""], ["1", "2", ""], ["2", "3", ""], ["3", "4", ""]]));
 }) 
 
 test('Delete 2 chars from the tree, insert in end', () => {
     const testTree = createTestTree(5, [1, 2]);
     expect(testTree.value()).toBe("ace");
-    const c = new WChar(new WId(1, 3), "A", true, new WId(1, 4), null);
+    const c = new WChar(new WId(1, 5), "A", true, new WId(1, 4), null);
     testTree.insert(c, 5);
     expect(testTree.value()).toBe("aceA");
+    expect(getIDSequence(testTree)).toStrictEqual(correctIDSequence([["", "0", ""], ["0", "1", ""], ["1", "2", ""], ["2", "3", ""], ["3", "4", ""], ["4", "5", ""]]));
 })
 
 test('Subsequence, c = null, d = null', () => {
