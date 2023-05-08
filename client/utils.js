@@ -2,7 +2,7 @@
 export class WId {
     /**
      * 
-     * @param {int} numSite 
+     * @param {string} numSite 
      * @param {int} numTick 
      */
     constructor (numSite, numTick) {
@@ -10,8 +10,22 @@ export class WId {
         this.numTick = numTick;
     }
 
+    /**
+     * 
+     * @param {WId} wId 
+     * @returns 
+     */
     isEqual(wId) {
         return this.numSite === wId.numSite && this.numTick === wId.numTick;
+    }
+
+    /**
+     * 
+     * @param {WId} wId 
+     */
+    isLessThan(wId) {
+        const siteCompare = this.numSite.localeCompare(wId.numSite);
+        return (siteCompare === -1) || (siteCompare === 0 && this.numTick < wId.numTick);
     }
 }
 

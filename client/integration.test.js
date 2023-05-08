@@ -69,7 +69,8 @@ test('Sync manual inserts', async () => {
     console.log(process.version);
     const c1 = await Client.makeClient(false);
     const c2 = await Client.makeClient(false);
-    sleep(100); // Let clients initialize
+    const isC1Lower = (c1.controller.siteId.localeCompare(c1.controller.siteId) === -1);
+    console.log("C1:", c1.controller.siteId);
     
     const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'a', 0));
     c2.handleRemoteOp(op);
@@ -81,12 +82,19 @@ test('Sync manual inserts', async () => {
     expect(c1.controller.tree.value()).toBe('ba');
     expect(c2.controller.tree.value()).toBe('ba');
 
-    // const op = testController.generateInsert('A', 0);
-    // const expectedWChar = new WChar(new WId(1, 0), 'A', true, null, null);
-    // const expectedOp = new CRDTOp(OpType.Insert, expectedWChar);
+    const op3 = c1.handleEditorChange(createChangeObject(OpType.Insert, 'c', 1));
+    const op4 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'd', 1));
+    expect(c1.controller.tree.value()).toBe('bca');
+    expect(c2.controller.tree.value()).toBe('bda');
+    c1.handleRemoteOp(op4);
+    c2.handleRemoteOp(op3);
 
-    // console.log(op);
-
-    // expect(op).toEqual(expectedOp);
-    // expect(testController.tree.value()).toBe('A');
+    let expectedStr = '';
+    if (op3.wChar.id.isLessThan(op4.wChar.id)) {
+        expectedStr = 'bcda';
+    } else {
+        expectedStr = 'bdca';
+    }
+    expect(c1.controller.tree.value()).toBe(expectedStr);
+    expect(c2.controller.tree.value()).toBe(expectedStr);
 });
