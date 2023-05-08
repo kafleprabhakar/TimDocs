@@ -28,7 +28,7 @@ export class Controller {
             cp_id = cp.id;
         }
         let cn_id = null;
-        if (cp != undefined) {
+        if (cn != undefined) {
             cn_id = cn.id;
         }
         const wChar = new WChar(wid, c, true, cp_id, cn_id);
@@ -96,16 +96,19 @@ export class Controller {
 
         // find sequence 
         // insert at next position 
-        const wchar_prev = this.tree.find(wchar_prev_id);
-        const wchar_next = this.tree.find(wchar_next_id);
-
+        let wchar_prev, wchar_next = null;
+        if (wchar_prev_id != null) {
+            wchar_prev = this.tree.find(wchar_prev_id);
+        }
+        if (wchar_next_id != null) {
+            wchar_next = this.tree.find(wchar_next_id);
+        }
 
         const sequence = this.tree
         const subseq = sequence.subseq(wchar_prev, wchar_next) 
         // If wchar is in between prev and next, subseq should have 0 length.
         if (subseq.length===0) {
-            console.log("Position: ", this.tree.pos(wchar_next));
-            return sequence.insert(wchar, this.tree.pos(wchar_next))
+            return sequence.insert(wchar, this.tree.pos(wchar_next, false))
         } else {
             let L  = subseq
             let i = 1 
@@ -125,7 +128,6 @@ export class Controller {
     integrateDelete(wChar) {
         // set visible char to false 
         const p = this.tree.pos(wChar);
-        console.log('Position: ', p);
         this.tree.delete(p);
         // console.log("Wchar id in integratedel", this.tree.find(wChar.id));
         // this.tree.find(wChar.id).visible = false;

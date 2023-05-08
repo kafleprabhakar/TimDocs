@@ -128,3 +128,43 @@ test('Delete 2 chars from the tree, insert in end', () => {
     testTree.insert(c, 5);
     expect(testTree.value()).toBe("aceA");
 })
+
+test('Subsequence, c = null, d = null', () => {
+    const testTree = createTestTree(5, [1,2]);
+    expect(testTree.value()).toBe("ace");
+    const subseq = testTree.subseq(null, null);
+    expect(subseq.length).toBe(5);
+    expect(subseq[0].wChar.id).toStrictEqual(new WId(1, 0));
+    expect(subseq[4].wChar.id).toStrictEqual(new WId(1, 4))
+})
+
+test('Subsequence, c = null, d = non-null', () => {
+    const testTree = createTestTree(5, [1,2]);
+    expect(testTree.value()).toBe("ace");
+    const c = new WChar(new WId(1, 2), "c", true, new WId(1, 1), new WId(1, 3));
+    const subseq = testTree.subseq(null, c);
+    expect(subseq.length).toBe(2);
+    expect(subseq[0].wChar.id).toStrictEqual(new WId(1, 0));
+    expect(subseq[1].wChar.id).toStrictEqual(new WId(1, 1));
+    expect(subseq[1].wChar.visible).toBe(false);
+})
+
+test('Subsequence, c = non-null, d = null', () => {
+    const testTree = createTestTree(5, [1,2]);
+    expect(testTree.value()).toBe("ace");
+    const c = new WChar(new WId(1, 2), "c", true, new WId(1, 1), new WId(1, 3));
+    const subseq = testTree.subseq(c, null);
+    expect(subseq.length).toBe(2);
+    expect(subseq[0].wChar.id).toStrictEqual(new WId(1, 3));
+    expect(subseq[1].wChar.id).toStrictEqual(new WId(1, 4));
+    expect(subseq[0].wChar.visible).toBe(false);
+})
+
+test('Subsequence, c = non-null, d = non-null', () => {
+    const testTree = createTestTree(5, [1,2]);
+    expect(testTree.value()).toBe("ace");
+    const c = new WChar(new WId(1, 2), "c", true, new WId(1, 1), new WId(1, 3));
+    const d = new WChar(new WId(1, 3), "d", true, new WId(1, 2), new WId(1, 4));
+    const subseq = testTree.subseq(c, d);
+    expect(subseq.length).toBe(0);
+})

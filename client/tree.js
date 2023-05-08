@@ -112,7 +112,6 @@ export class Tree {
         //         Update idNew.
         let t2 = null;
         if (p == tree.length) {
-            console.log("hit here! for", c1.c);
             t2 = tree[tree.length-1];
             if (t2.children.length == 0) {
                 t2.wChar.idNew = c1.id;
@@ -161,14 +160,14 @@ export class Tree {
 
     /**
      * Gets index of WChar c
-     * Returned index does NOT include hidden characters
      * @param {WChar} c 
-     * @returns Returns -1 if not found OR c is NOT visible.
+     * @param {boolean} checkVisible If true, index only includes visible character. If false, includes all characters.
+     * @returns Returns -1 if not found
      */
-    pos(c) {
+    pos(c, checkVisible = true) {
         let i = -1;
         for (let node of this.preOrderTraversal()) {
-            if (node.wChar.visible == false) {
+            if (checkVisible && node.wChar.visible == false) {
                 continue;
             }
             i += 1;
@@ -247,16 +246,22 @@ export class Tree {
     subseq(c, d) {
         let seq = [];
         let isCFound = false;
+        if (c == null) {
+            isCFound = true;
+        }
         for (let node of this.preOrderTraversal()) {
-            if (node.wChar === d) {
+            if (d && node.wChar.id.isEqual(d.id)) {
                 return seq;
             }
             if (isCFound) {
                 seq.push(node)
             }
-            if (node.wChar === c) {
+            if (c && node.wChar.id.isEqual(c.id)) {
                 isCFound = true;
             }
+        }
+        if (d == null) {
+            return seq;
         }
         return [];
     }
@@ -282,8 +287,3 @@ export class Tree {
         return false;
     }
 }
-
-// module.exports = {
-//     Tree: Tree,
-//     TreeNode: TreeNode
-// }

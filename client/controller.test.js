@@ -95,7 +95,7 @@ test('Delete characters', () => {
 
 test('Mix of insert and delete', () => {
     const testController = createTestController(1, 4);
-
+    expect(testController.tree.value()).toBe('abcd');
     const op1 = testController.generateInsert('A', 0);
     const expectedWChar1 = new WChar(new WId(1, 4), 'A', true, null, new WId(1, 0));
     const expectedOp1 = new CRDTOp(OpType.Insert, expectedWChar1);
