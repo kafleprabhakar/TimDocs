@@ -39,5 +39,18 @@
         ]
       }
     }
+  },
+  "jest": {
+    "setupFiles": [
+      "<rootDir>/jestSetup.js"
+    ],
+    "globals": {
+      "navigator": {
+        "userAgent": "node.js"
+      },
+      "window": {
+        "userAgent": "node.js"
+      }
+    }
   }
 }

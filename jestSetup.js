@@ -1,0 +1,1 @@
+require('./client/jest-peerjs.min.js');

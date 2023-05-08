@@ -181,7 +181,7 @@ export class Tree {
      */
     CP(c) {
         let tree = [...this.preOrderTraversal()];
-        for (let i = 0; i < length(tree); i++) {
+        for (let i = 0; i < tree.length; i++) {
             if (tree[i].wChar === c) {
                 if (i > 0) {
                     return tree[i-1];
@@ -198,7 +198,7 @@ export class Tree {
      */
     CN(c) {
         let tree = [...this.preOrderTraversal()];
-        for (let i = 0; i < length(tree); i++) {
+        for (let i = 0; i < tree.length; i++) {
             if (tree[i].wChar === c) {
                 if (i+1 < length(tree)) {
                     return tree[i+1];
