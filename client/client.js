@@ -1,6 +1,6 @@
 import { Messenger } from "./messenger.js";
 import { Controller } from "./controller.js";
-import { OpType } from "./utils.js";
+import { OpType, CRDTOp, WId, WChar } from "./utils.js";
 
 // const { Messenger } = require("./messenger.js");
 // const { Controller } = require("./controller.js");
@@ -17,10 +17,22 @@ export class Client {
             this.initEditor()
         else
             this.editor = null;
+        //this.vectorclocks = []; 
+        
     }
 
     initEditor() {
         const editor = document.getElementById("editor");
+        /*
+        let startState = EditorState.create({
+            doc: "text here", 
+            extensions: [keymap.of(defaultKeymap)]
+        })
+        this.editor = EditorView({
+            state: startState,
+            parent: document.body
+        })
+        */
         this.editor = CodeMirror.fromTextArea(editor, {
             mode: "xml",
             theme: "dracula",
@@ -75,7 +87,26 @@ export class Client {
      */
     handleRemoteOp = (op) => {
         if (op.opType === OpType.Insert) {
-            this.controller.ins(op);
+            
+            let wid = new WId(op.wChar.id.numSite,op.wChar.id.numTick);
+            let wChar = new WChar(wid,op.wChar.c,op.wChar.visible,op.wChar.idPrev,op.wChar.idNew);
+            let newcrdt = new CRDTOp(op.opType,wChar) 
+            this.controller.ins(newcrdt); 
+            //let text = op.wChar.c; 
+            let id = op.wChar.id;
+            console.log("id", id);
+            //console.log("text", text);
+            //let text = this.editor.getValue();
+            // edit the text, for example  
+            // set the text back to the editor  
+            this.editor.setValue(this.controller.tree.value());
+            //let transaction = view.state.update({changes: {from: id, insert: text}})
+            //console.log(transaction.state.doc.toString()) // "0123"
+            // At this point the view still shows the old state.
+            //view.dispatch(transaction)
+            // apply this text 
+            // create a buffer of incoming and ticks 
+            // create counts of client's ticks that it's received 
         } else if (op.opType === OpType.Delete) {
             this.controller.del(op);
         }

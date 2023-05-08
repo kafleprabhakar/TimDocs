@@ -16,6 +16,7 @@ export class WId {
      * @returns 
      */
     isEqual(wId) {
+
         return this.numSite === wId.numSite && this.numTick === wId.numTick;
     }
 
@@ -69,6 +70,12 @@ export class CRDTOp {
     constructor(opType, wChar) {
         this.opType = opType;
         this.wChar = wChar;
+    }
+
+    static fromObject(obj) {
+        const op = new CRDTOp();
+        Object.assign(op,obj);
+        return op;
     }
 }
 
