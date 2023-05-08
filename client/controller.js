@@ -81,9 +81,9 @@ export class Controller {
         if (op.opType == OpType.Delete) {
             return this.tree.contains(op.wChar);
         } else {
-            
-            return (op.wChar.idPrev === null || this.tree.contains(op.wChar.idPrev))
-                    && (op.wChar.idPrev === null || this.tree.contains(op.wChar.idNew));
+            console.log("op isExecutable:", op);
+            return (op.wChar.idPrev === null || this.tree.contains(this.tree.find(op.wChar.idPrev)))
+                    && (op.wChar.idPrev === null || this.tree.contains(this.tree.find(op.wChar.idNew)));
         }
     }
     
@@ -116,14 +116,14 @@ export class Controller {
             let L = subseq;
             let i = 1;
             // TODO: ADD IN CLOCKS check if site is same then clock for 1 has to be less than 2
-            while (i < L.length - 1 && (L[i].siteId<=wchar.siteId)){ 
+            while (i < L.length - 1 && (L[i].id.isLessThan(wchar.id))){ 
                 i += 1;
             }
             // Handling the case where there's only 1 char in the subset
             if (i == 1) {
-                return this.integrateInsert(wchar, L[i-1].wChar.id, L[i-1].wChar.id);
+                return this.integrateInsert(wchar, L[i-1].id, L[i-1].id);
             }
-            return this.integrateInsert(wchar, L[i-1].wChar.id, L[i].wChar.id);
+            return this.integrateInsert(wchar, L[i-1].id, L[i].id);
         }
     }
 

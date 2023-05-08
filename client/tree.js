@@ -230,7 +230,7 @@ export class Tree {
      * Returns the part of S between the elements c and d (excluding c and d)
      * @param {WChar} c 
      * @param {WChar} d 
-     * @returns Undefined if d is not to be found after c
+     * @returns {WChar[]} Undefined if d is not to be found after c
      */
     subseq(c, d) {
         let seq = [];
@@ -243,7 +243,7 @@ export class Tree {
                 return seq;
             }
             if (isCFound) {
-                seq.push(node)
+                seq.push(node.wChar);
             }
             if (c && node.wChar.id.isEqual(c.id)) {
                 isCFound = true;

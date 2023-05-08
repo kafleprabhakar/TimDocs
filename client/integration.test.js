@@ -86,6 +86,7 @@ test('Sync manual inserts', async () => {
     const op4 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'd', 1));
     expect(c1.controller.tree.value()).toBe('bca');
     expect(c2.controller.tree.value()).toBe('bda');
+    console.log("Op4:", op4);
     c1.handleRemoteOp(op4);
     c2.handleRemoteOp(op3);
 
