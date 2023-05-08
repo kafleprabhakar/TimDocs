@@ -114,12 +114,18 @@ export class Controller {
             return sequence.insert(wchar, this.tree.pos(wchar_next, false));
         } else {
             let L = [];
-            // L = subseq;
-            L.push(wchar_prev);
-            for(let wc of subseq) {
-                L.push(wc);
-            }
-            L.push(wchar_next);
+            L = subseq;
+            // L.push(wchar_prev);
+            // const c_p_pos = this.tree.pos(wchar_prev, false);
+            // const c_n_pos = this.tree.pos(wchar_next, false);
+            // for (let wc of subseq) {
+            //     let dPrevPos = this.tree.pos(this.tree.find(wc.idPrev), false);
+            //     let dNextPos = this.tree.pos(this.tree.find(wc.idNew), false);
+            //     if (dPrevPos <= c_p_pos && c_n_pos <= dNextPos) {
+            //         subseq.push(wc);
+            //     }
+            // }
+            // L.push(wchar_next);
             let i = 1;
             // TODO: ADD IN CLOCKS check if site is same then clock for 1 has to be less than 2
             while (i < L.length - 1 && (L[i].id.isLessThan(wchar.id))){ 
