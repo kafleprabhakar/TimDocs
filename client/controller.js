@@ -106,6 +106,7 @@ export class Controller {
 
         const sequence = this.tree;
         const subseq = sequence.subseq(wchar_prev, wchar_next);
+        console.log("sub", subseq);
         // If wchar is in between prev and next, subseq should have 0 length.
         if (subseq.length == 0) {
             return sequence.insert(wchar, this.tree.pos(wchar_next, false));
@@ -116,9 +117,9 @@ export class Controller {
             while (i < L.length - 1 && (L[i].siteId<=wchar.siteId)){ 
                 i += 1;
             }
-            if(L[i]==undefined){
-                console.log("L:",L);
-                console.log("i:", i);
+            // Handling the case where there's only 1 char in the subset
+            if (i == 1) {
+                return this.integrateInsert(wchar, L[i-1].wChar.id, L[i-1].wChar.id);
             }
             return this.integrateInsert(wchar, L[i-1].wChar.id, L[i].wChar.id);
         }
