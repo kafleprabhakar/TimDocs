@@ -1,5 +1,5 @@
 import { Controller } from './controller.js';
-import {CRDTOp, OpType} from './utils.js';
+import { WId, WChar, CRDTOp, OpType } from './utils.js';
 
 // const {CRDTOp, OpType} = require('./utils.js');
 
@@ -29,7 +29,7 @@ export class Messenger {
             this.connections[peer] = conn;
             console.log("Connected to peer", peer);
             // Send messages
-            conn.send("Hello!"); // heartbeat 
+            // conn.send("Hello!"); // heartbeat 
             conn.on("data", this.listenForData);
 
         });
@@ -53,8 +53,20 @@ export class Messenger {
         console.log('Received data', data);
         console.log('Received data optype', data.opType);
         console.log("Messenger", this);
-        if (data.opType == OpType.Insert || data.opType == OpType.Delete) {
-            this.handleFunc(data);
+
+        const wid = new WId(data.wChar.id.numSite, data.wChar.id.numTick);
+        let idPrev = null;
+        let idNext = null;
+        if (data.wChar.idPrev != null)
+            idPrev = new WId(data.wChar.idPrev.numSite, data.wChar.idPrev.numTick);
+
+        if (data.wChar.idNew != null)
+            idNext = new WId(data.wChar.idNew.numSite, data.wChar.idNew.numTick);
+        let wChar = new WChar(wid, data.wChar.c, data.wChar.visible, idPrev, idNext);
+        let crdtOp = new CRDTOp(data.opType, wChar);
+
+        if (crdtOp.opType == OpType.Insert || crdtOp.opType == OpType.Delete) {
+            this.handleFunc(crdtOp);
         }
     }
 

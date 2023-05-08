@@ -87,19 +87,16 @@ export class Client {
      */
     handleRemoteOp = (op) => {
         if (op.opType === OpType.Insert) {
-            
-            let wid = new WId(op.wChar.id.numSite,op.wChar.id.numTick);
-            let wChar = new WChar(wid,op.wChar.c,op.wChar.visible,op.wChar.idPrev,op.wChar.idNew);
-            let newcrdt = new CRDTOp(op.opType,wChar) 
-            this.controller.ins(newcrdt); 
+            this.controller.ins(op); 
             //let text = op.wChar.c; 
             let id = op.wChar.id;
             console.log("id", id);
             //console.log("text", text);
             //let text = this.editor.getValue();
             // edit the text, for example  
-            // set the text back to the editor  
-            this.editor.setValue(this.controller.tree.value());
+            // set the text back to the editor
+            if (this.hasEditor)
+                this.editor.setValue(this.controller.tree.value());
             //let transaction = view.state.update({changes: {from: id, insert: text}})
             //console.log(transaction.state.doc.toString()) // "0123"
             // At this point the view still shows the old state.
