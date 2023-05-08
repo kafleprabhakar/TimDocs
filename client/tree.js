@@ -150,10 +150,11 @@ export class Tree {
      */
     pos(c, checkVisible = true) {
         let i = -1;
+        const tree = this.preOrderTraversal();
         if (c == null) {
-            return -1;
+            return tree.length;
         }
-        for (let node of this.preOrderTraversal()) {
+        for (let node of tree) {
             if (checkVisible && node.wChar.visible == false) {
                 continue;
             }
