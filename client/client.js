@@ -61,10 +61,11 @@ export class Client {
             op = this.controller.generateInsert(change.text[0], change.from.ch);
         } else if (change.origin == "+delete") { // This could be a paste too. But for the time being only handling insert and delete
             op = this.controller.generateDelete(this.cursorPosition);
-        } 
+        }
         // send vector clock 
         this.messenger.broadcast(op);
         // Call broadcast function in messenger to broadcast above CRDT operation `op`
+        return op; // For the test function
     }
 
 

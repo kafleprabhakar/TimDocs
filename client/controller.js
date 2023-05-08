@@ -55,7 +55,7 @@ export class Controller {
      */
     ins(op) {
         if (this.isExecutable(op)) {
-            this.integrateInsert(op.wChar, this.tree.CP(op.wChar), this.tree.CN(op.wChar));
+            this.integrateInsert(op.wChar, op.wChar.idPrev, op.wChar.idNew);
         } else {
             this.bufferPool.push(op);
         }
@@ -78,10 +78,12 @@ export class Controller {
      * @param {CRDTOp} op the CRDT operation to check 
      */
     isExecutable(op) {
-        if (op.opType == OpType.Insert) {
+        if (op.opType == OpType.Delete) {
             return this.tree.contains(op.wChar);
         } else {
-            return this.tree.contains(this.tree.CP(op.wChar)) && this.tree.contains(this.tree.CN(op.wChar));
+            
+            return (op.wChar.idPrev === null || this.tree.contains(op.wChar.idPrev))
+                    && (op.wChar.idPrev === null || this.tree.contains(op.wChar.idNew));
         }
     }
     

@@ -13,7 +13,6 @@ export class Messenger {
         this.me = new Peer(id);
         this.connections = {}
         this.me.on("open", (id) => {
-
             this.listenForConnection()
 
             for (let i = 0; i < peers.length; i++) {
@@ -74,8 +73,8 @@ export class Messenger {
     heartbeat() { 
         for (let key in this.connections) {
             if (key!=this.me) {
-                this.connections[key].send("heartbeat", "")
-                this.connections[key].on("received heartbeat") 
+                this.connections[key].send("heartbeat", "");
+                this.connections[key].on("received heartbeat")
             }
         }  
 

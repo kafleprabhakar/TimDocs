@@ -42,7 +42,7 @@ export class WChar {
 }
 
 export const OpType = {
-    Insert: "+insert",
+    Insert: "+input",
     Delete: "+delete"
 }
 
