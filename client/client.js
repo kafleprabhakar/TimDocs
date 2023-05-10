@@ -18,7 +18,9 @@ export class Client {
             this.initEditor()
         else
             this.editor = null;
-        //this.vectorclocks = []; 
+        this.mapHeartbeats = {};  
+
+        
         
     }
 
@@ -44,7 +46,7 @@ export class Client {
         const response = await fetch("http://" + window.location.hostname + ":1800/?name="+name);
         const jsonData = await response.json();
         return new Client(hasEditor, jsonData.me, name, jsonData.peers);
-    }
+    } 
 
     bindKeyboardActions() {
         
@@ -62,8 +64,10 @@ export class Client {
         let op = null;
         if (change.origin == "+input") {
             op = this.controller.generateInsert(change.text[0], change.from.ch);
+            this.controller.tree.versionNumber+=1;
         } else if (change.origin == "+delete") { // This could be a paste too. But for the time being only handling insert and delete
             op = this.controller.generateDelete(change.from.ch);
+            this.controller.tree.versionNumber+=1;
         }
         // send vector clock 
         this.messenger.broadcast(op);
@@ -117,10 +121,12 @@ export class Client {
                 if (this.isExecutable(op)) {
                     if (op.opType === OpType.Insert) {
                         this.controller.ins(op); 
+                        this.controller.tree.versionNumber+=1;
                     } else if (op.opType === OpType.Delete) {
                         this.controller.del(op);
-                    }
-                    if (this.hasEditor)
+                        this.controller.tree.versionNumber+=1;
+                    } 
+                    if (this.hasEditor) 
                         this.editor.setValue(this.controller.tree.value());
                     appliedOp = true;
                 } else {
@@ -130,12 +136,33 @@ export class Client {
             }
             this.buffer = bufferCopy;
         }
+         
     }
 
     handleTreeRequest = (peer) => {
         const sendOp = new CRDTOp(OpType.SendDoc, null, this.controller.tree);
         this.messenger.sendTree(peer, sendOp);
     }
+    
+    handleHeartbeat = (peer) => {
+        console.log("handle heartbeat");
+        const ackOp = new CRDTOp(OpType.Ack, null, this.controller.tree);
+        this.messenger.sendAck(ackOp);  
+
+    }
+
+    handleAck = (peer, versionNum) => {
+        console.log("handle ack") 
+        //this.connections[peer].conn.on("error");
+        //this.connections[peer].conn.send(ackOp)
+        this.messenger.mapHeartbeats[peer] = 0; 
+        // check version number here
+        // if version from peer is less my version number 
+        if (versionNum < this.controller.versionNum) {
+            this.handleTreeRequest(peer); // send your tree over 
+        }
+    }
+    
 
     integrateTree = (op) => {
         this.controller.tree = Tree.fromObject(op.tree);
@@ -145,7 +172,12 @@ export class Client {
         
     handleRemoteMessage = (peer, msg) => {
         const op = CRDTOp.fromObject(msg);
-        if (op.opType == OpType.GetDoc) {
+        if (op.opType == OpType.Heartbeat) {
+            this.handleHeartbeat(peer);
+        } else if (op.opType == OpType.Ack) { 
+            
+            this.handleAck(peer, op.tree.versionNumber); 
+        } else if (op.opType == OpType.GetDoc) {
             this.handleTreeRequest(peer);
         } else if (op.opType == OpType.SendDoc) {
             this.integrateTree(op);

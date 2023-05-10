@@ -22,6 +22,7 @@ export class Messenger {
         this.name = name;
         this.allPeers = peers;
         this.connections = {}
+        this.mapHeartbeats = {}
         this.me.on("open", (id) => {
             this.listenForConnection();
 
@@ -34,6 +35,7 @@ export class Messenger {
         });
         this.handleFunc = handleFunc;
         this.signalConnection = signalConnection;
+        this.heartbeat();
     }
 
     establishConnection(peer) {
@@ -74,11 +76,18 @@ export class Messenger {
      * @param {CRDTOp} data 
      */
     listenForData = (peer, data) => {
-        console.log('Received data', data);
-        console.log('Received data optype', data.opType);
-        console.log("Messenger", this);
-
-        this.handleFunc(peer, data);
+        //console.log('Received data', data);
+       // console.log('Received data optype', data.opType);
+        //console.log("Messenger", this);
+        //if (data.opType == OpType.Heartbeat) {
+            //this.sendAck(peer,data); 
+        //} else if (data.opType == OpType.Ack){
+            //this.handleAck(peer, data.tree.versionNumber); 
+        //} else { 
+        if (data.opType!= OpType.Ack && data.opType!= OpType.Heartbeat){
+            this.handleFunc(peer, data); 
+        }
+        
         // if (data.opType == OpType.Insert || data.opType == OpType.Delete) {
         //     // const wid = new WId(data.wChar.id.numSite, data.wChar.id.numTick);
         //     // let idPrev = null;
@@ -100,7 +109,10 @@ export class Messenger {
     }
 
     removePeer(peer) {
-        delete this.connections[peer];
+        this.connections[peer].close();
+        delete this.connections[peer]; 
+        
+
     }
 
     broadcast(data) {
@@ -117,13 +129,63 @@ export class Messenger {
         this.connections[peer].conn.send(sendOp);
     }
 
-    heartbeat() { 
-        for (let key in this.connections) {
-            if (key!=this.me) {
-                this.connections[key].conn.send("heartbeat", "");
-                this.connections[key].conn.on("received heartbeat")
+    sendAck = (peer, ackOp) => {
+       
+        console.log("Ack sent", ackOp)
+        this.connections[peer].conn.send(ackOp); 
+    }
+    
+    handleAck = (peer, versionNum) => {
+        console.log("handle ack") 
+        //this.connections[peer].conn.on("error");
+        //this.connections[peer].conn.send(ackOp)
+        this.mapHeartbeats[peer] = 0; 
+        // check version number here
+        // if version from peer is less  
+        // my version number 
+        //if (versionNum < this.) {
+            //this.sendTree(peer,)
+        //}
+        
+
+    }
+    
+
+    heartbeat= () => { 
+        // do something if not received ack 
+        // create 2 new ops, 
+        //let timeout = 0; // TODO: add a timeout
+        
+        let send = true;
+        for (let key in this.mapHeartbeats) {
+            if (key==1) { 
+                send = false
+                this.removePeer(key);
             }
-        }  
+        } 
+        //if (!send){
+            for (let key in this.connections) {
+                if (key!=this.me) {
+                    
+                    const beat = new CRDTOp(OpType.Heartbeat, null,null);
+                    this.connections[key].conn.send(beat); 
+                    //this.connections[key].conn.on()
+                    //conn.on("data", (data) => this.listenForData(peer, data));
+                    // if received ack w ack then send tree 
+                    this.mapHeartbeats[key] = 1 
+                    console.log("heartbeat sent", key);
+    
+                    //this.connections[key].conn.send("heartbeat", "");
+                    //this.connections[key].conn.on("received heartbeat")
+                }
+            }
+
+        //}
+        setInterval(this.heartbeat,5000);
+        
+        
+        
+        
 
     }
 }

@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
   response['me'] = id;
   console.log(response);
   res.json(response);
-})
+}) 
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

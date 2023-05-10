@@ -85,7 +85,9 @@ export const OpType = {
     Insert: "+input",
     Delete: "+delete",
     GetDoc: "getDoc",
-    SendDoc: "sendDoc"
+    SendDoc: "sendDoc",
+    Ack: "acknowledge",
+    Heartbeat: "heartbeat"
 }
 
 export class CRDTOp {

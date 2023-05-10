@@ -11,6 +11,7 @@ export class TreeNode {
         this.wChar = wChar;
         this.parent = parent;
         this.children = []; 
+        this.versionNumber= 0;
     }
 
     static fromObject(obj) {
