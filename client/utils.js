@@ -1,4 +1,4 @@
-import { TreeNode } from "./tree.js";
+import { Tree, TreeNode } from "./tree.js";
 
 // Unique identifier for WChar, as defined in WOOT paper
 export class WId {
@@ -106,6 +106,7 @@ export class CRDTOp {
         // Object.assign(op,obj);
         op.opType = obj.opType;
         op.wChar = WChar.fromObject(obj.wChar);
+        op.tree = Tree.fromObject(obj.tree);
         return op;
     }
 }
