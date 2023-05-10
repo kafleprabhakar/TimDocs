@@ -179,7 +179,7 @@ function operateOnExpected(str, change) {
 }
 
 beforeEach(() => {
-    window.location = {'hostname': os.hostname()};
+    window.location = {'hostname': "localhost"};
 });
 
 test('Sync manual inserts', async () => {
