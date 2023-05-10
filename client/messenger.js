@@ -10,17 +10,18 @@ export class Messenger {
      * @param {string[]} peers 
      * @param {Controller} controller 
      */
-    constructor(id, peers, handleFunc) {
+    constructor(id, peers, handleFunc, handleNewTreeRequest) {
         this.me = new Peer(id);
         this.connections = {}
         this.me.on("open", (id) => {
-            this.listenForConnection()
+            this.listenForConnection();
 
             for (let i = 0; i < peers.length; i++) {
                 this.establishConnection(peers[i])
             }
         });
         this.handleFunc = handleFunc;
+        this.handleNewTreeRequest = handleNewTreeRequest;
     }
 
     establishConnection(peer) {
@@ -29,8 +30,10 @@ export class Messenger {
             this.connections[peer] = conn;
             console.log("Connected to peer", peer);
             // Send messages
-            // conn.send("Hello!"); // heartbeat 
-            conn.on("data", this.listenForData);
+            // conn.send("Hello!"); // heartbeat
+            const getDocOp = new CRDTOp(OpType.GetDoc, null);
+            conn.send(getDocOp);
+            conn.on("data", (data) => this.listenForData(peer, data));
 
         });
     } 
@@ -38,7 +41,7 @@ export class Messenger {
     listenForConnection() {
         this.me.on("connection", (conn) => {
             this.connections[conn.peer] = conn;
-            conn.on("data", this.listenForData);
+            conn.on("data", (data) => this.listenForData(conn.peer, data));
             conn.on("close", () => {
                 console.log("Closed connection with peer", conn.peer);
             })
@@ -49,24 +52,27 @@ export class Messenger {
      * 
      * @param {CRDTOp} data 
      */
-    listenForData = (data) => {
+    listenForData = (peer, data) => {
         console.log('Received data', data);
         console.log('Received data optype', data.opType);
         console.log("Messenger", this);
 
-        const wid = new WId(data.wChar.id.numSite, data.wChar.id.numTick);
-        let idPrev = null;
-        let idNext = null;
-        if (data.wChar.idPrev != null)
-            idPrev = new WId(data.wChar.idPrev.numSite, data.wChar.idPrev.numTick);
+        if (data.opType == OpType.Insert || data.opType == OpType.Delete) {
+            const wid = new WId(data.wChar.id.numSite, data.wChar.id.numTick);
+            let idPrev = null;
+            let idNext = null;
+            if (data.wChar.idPrev != null)
+                idPrev = new WId(data.wChar.idPrev.numSite, data.wChar.idPrev.numTick);
 
-        if (data.wChar.idNew != null)
-            idNext = new WId(data.wChar.idNew.numSite, data.wChar.idNew.numTick);
-        let wChar = new WChar(wid, data.wChar.c, data.wChar.visible, idPrev, idNext);
-        let crdtOp = new CRDTOp(data.opType, wChar);
-
-        if (crdtOp.opType == OpType.Insert || crdtOp.opType == OpType.Delete) {
+            if (data.wChar.idNew != null)
+                idNext = new WId(data.wChar.idNew.numSite, data.wChar.idNew.numTick);
+            let wChar = new WChar(wid, data.wChar.c, data.wChar.visible, idPrev, idNext);
+            let crdtOp = new CRDTOp(data.opType, wChar);
             this.handleFunc(crdtOp);
+        } else if (data.opType == OpType.GetDoc) {
+            this.handleNewTreeRequest(peer);
+        } else if (data.opType == OpType.SendDoc) {
+            this.handleFunc(data);
         }
     }
 
@@ -82,6 +88,10 @@ export class Messenger {
             }
         } 
         
+    }
+
+    sendTree = (peer, sendOp) => {
+        this.connections[peer].send(sendOp);
     }
 
     heartbeat() { 

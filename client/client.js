@@ -8,7 +8,7 @@ import { OpType, CRDTOp, WId, WChar } from "./utils.js";
 export class Client {
     constructor(hasEditor, id, peers) {
         this.controller = new Controller(id); 
-        this.messenger = new Messenger(id, peers, this.handleRemoteOp);
+        this.messenger = new Messenger(id, peers, this.handleRemoteOp, this.handleTreeRequest);
         this.buffer = []
         // Initialize Editor
         this.hasEditor = hasEditor; // Will be useful if we decide to store everything in the server later on
@@ -115,10 +115,10 @@ export class Client {
         this.addBuffer(op);
 
         while(this.buffer.length!=0){
-            let thisop = op;
-            if (this.isExecutable(this.buffer.pop())){
-                thisop = op;
-            }
+            // let thisop = op;
+            // if (this.isExecutable(this.buffer.pop())){
+            //     thisop = op;
+            // }
 
             if (op.opType === OpType.Insert) {
                 this.controller.ins(op); 
@@ -133,6 +133,8 @@ export class Client {
                 // create counts of client's ticks that it's received 
             } else if (op.opType === OpType.Delete) {
                 this.controller.del(op);
+            } else if (op.opType === OpType.SendDoc) {
+                this.controller.tree = op.tree;
             }
             // let id = op.wChar.id;
                 //console.log("text", text);
@@ -142,7 +144,12 @@ export class Client {
             if (this.hasEditor)
                 this.editor.setValue(this.controller.tree.value());
         }
-        }
+    }
+
+    handleTreeRequest = (peer) => {
+        const sendOp = new CRDTOp(OpType.SendDoc, null, this.controller.tree);
+        this.messenger.sendTree(peer, sendOp);
+    }
         
         
 }

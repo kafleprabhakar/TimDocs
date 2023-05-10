@@ -1,7 +1,7 @@
 import { WChar } from "./utils.js";
 import { WId } from "./utils.js";
 
-class TreeNode {
+export class TreeNode {
     /**
      * 
      * @param {WChar} wChar 
