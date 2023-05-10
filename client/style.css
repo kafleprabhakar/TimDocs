@@ -1,0 +1,31 @@
+
+
+main#main {
+    background-color: #f1f1f1;
+    min-height: 100vh;
+}
+
+.CodeMirror {
+    font-family: 'Times New Roman';
+    height: calc(100vh - 90px);
+    padding: 35px 25px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+#secondary h2 {
+    font-size: 1.5em;
+    text-decoration: underline;
+}
+.list-group-item {
+    display: flex;
+    align-items: center;
+}
+
+.user-icon {
+    background-color: red;
+    height: 30px;
+    width: 30px;
+    -webkit-mask: url(static/user.svg) no-repeat center / contain;
+    mask: url(static/user.svg) no-repeat center / contain;
+}

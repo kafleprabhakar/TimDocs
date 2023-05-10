@@ -37,7 +37,8 @@ export class Client {
         this.editor = CodeMirror.fromTextArea(editor, {
             mode: "xml",
             theme: "dracula",
-            lineNumbers: false
+            lineNumbers: false,
+            lineWrapping: true,
         });
         this.bindKeyboardActions();
     }
