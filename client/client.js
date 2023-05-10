@@ -67,7 +67,6 @@ export class Client {
 
     // Adds the character c to the document tree and broadcasts to other peers
     handleEditorChange(change) {
-        // console.log("Change:", change);
         let op = null;
         if (change.origin == "+input") {
             op = this.controller.generateInsert(change.text[0], change.from.ch);
@@ -116,6 +115,7 @@ export class Client {
 
         while(this.buffer.length!=0){
             let thisop = op;
+            console.log("op:", op);
             if (this.isExecutable(this.buffer.pop())){
                 thisop = op;
             }

@@ -84,8 +84,8 @@ export class Controller {
         if (op.opType == OpType.Delete) {
             return this.tree.contains(op.wChar);
         } else {
-            return (op.wChar.idPrev === null || this.tree.contains(this.tree.find(op.wChar.idPrev)))
-                    && (op.wChar.idPrev === null || this.tree.contains(this.tree.find(op.wChar.idNew)));
+            return (op.wChar.idPrev === null || this.tree.contains(this.tree.find(op.wChar.idPrev, false)))
+                    && (op.wChar.idNew === null || this.tree.contains(this.tree.find(op.wChar.idNew, false)));
         }
     }
     
@@ -160,8 +160,8 @@ export class Controller {
         // set visible char to false 
         const p = this.tree.pos(wChar);
         const delSucceed = this.tree.delete(p);
-        console.log("delSucceed:", delSucceed);
-        console.log("wChar:", wChar);
+        // console.log("delSucceed:", delSucceed);
+        // console.log("wChar:", wChar);
         // console.log("Wchar id in integratedel", this.tree.find(wChar.id));
         // this.tree.find(wChar.id).visible = false;
         // console.log("Wchar id in integratedel after invisible", this.tree.find(wChar.id));

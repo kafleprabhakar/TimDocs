@@ -174,7 +174,7 @@ export class Tree {
      * @returns 
      */
     contains(c) {
-        if (this.pos(c) === -1) {
+        if (this.pos(c, false) === -1) {
             return false;
         }
         return true;

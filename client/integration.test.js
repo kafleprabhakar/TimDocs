@@ -107,6 +107,7 @@ async function testConcurrentOps (deleteOp=false) {
                 pos = Math.floor(Math.random() * (expectedStr.length + 1));
                 char = getRandomCharacter();
             }
+            
             const ch = createChangeObject(opType, char, pos);
             const op = clients[j].handleEditorChange(ch);
             changes.push(ch);
@@ -119,26 +120,47 @@ async function testConcurrentOps (deleteOp=false) {
             firstOp = changes[0];
             secondOp = changes[1];
         }
+        console.log("firstOp:", firstOp);
+        console.log("secondOp:", secondOp);
 
         expectedStr = operateOnExpected(expectedStr, firstOp);
+        let doSecond = true;
         if (firstOp.from.ch <= secondOp.from.ch) {
             if (firstOp.origin == OpType.Insert) {
                 secondOp.from.ch += 1;
                 secondOp.to.ch += 1;
-            } else {
+            }
+            // Following conditional fixes bug where 2 of the same deletes were getting processed as 2 separate deletes 
+            else  {
                 secondOp.from.ch -= 1;
                 secondOp.to.ch -= 1;
-            }
+            } 
+            // else {
+            //     doSecond = false;
+            // }
         }
-        expectedStr = operateOnExpected(expectedStr, secondOp);
+        if (firstOp.origin == OpType.Delete && secondOp.origin == OpType.Delete && firstOp.from.ch == secondOp.from.ch) {
+            doSecond = false;
+            // expectedStr = operateOnExpected(expectedStr, secondOp);
+        }
+        if (doSecond) {
+            expectedStr = operateOnExpected(expectedStr, secondOp);
+        }
+        // expectedStr = operateOnExpected(expectedStr, secondOp);
         console.log("Iteration ", i, ", the expected string: ", expectedStr);
 
+        console.log("c1 before ops[1]:", c1.controller.tree.value());
         c1.handleRemoteOp(ops[1]);
+        console.log("c1 after ops[1]:", c1.controller.tree.value());
+        console.log("c2 before ops[0]:", c2.controller.tree.value());
         c2.handleRemoteOp(ops[0]);
+        console.log("c2 after ops[0]:", c2.controller.tree.value());
         // Apply op1 and op2 in random order
         const first = Math.floor(Math.random() * ops.length);
         c3.handleRemoteOp(ops[first]);
+        console.log("c3 after ops[first]:", c3.controller.tree.value());
         c3.handleRemoteOp(ops[1-first]);
+        console.log("c3 after ops[1-first]:", c3.controller.tree.value());
 
         for (let c of clients) {
             expect(c.controller.tree.value()).toBe(expectedStr);
@@ -268,4 +290,52 @@ test("Automated concurrent inserts", async () => {
 
 test("Automated concurrent inserts and deletes", async () => {
     await testConcurrentOps(true);
+});
+
+test('KO', async () => {
+    console.log(process.version);
+    const c1 = await Client.makeClient(false);
+    const c2 = await Client.makeClient(false);
+    const isC1Lower = (c1.controller.siteId.localeCompare(c1.controller.siteId) === -1);
+    console.log("C1:", c1.controller.siteId);
+    
+    const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'r', 0));
+    c2.handleRemoteOp(op);
+    expect(c1.controller.tree.value()).toBe('r');
+    expect(c2.controller.tree.value()).toBe('r');
+
+    const op2 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'm', 0));
+    c1.handleRemoteOp(op2);
+    expect(c1.controller.tree.value()).toBe('mr');
+    expect(c2.controller.tree.value()).toBe('mr');
+
+    // const op3 = c1.handleEditorChange(createChangeObject(OpType.Delete, 'f', 0));
+    // const op4 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'd', 1));
+    // expect(c1.controller.tree.value()).toBe('bca');
+    // expect(c2.controller.tree.value()).toBe('bda');
+    // console.log("Op4:", op4);
+    // c1.handleRemoteOp(op4);
+    // c2.handleRemoteOp(op3);
+
+    // let expectedStr = '';
+    // if (op3.wChar.id.isLessThan(op4.wChar.id)) {
+    //     expectedStr = 'bcda';
+    // } else {
+    //     expectedStr = 'bdca';
+    // }
+    // global.expected = expectedStr;
+    // console.log("Expected:", expectedStr);
+    // expect(c1.controller.tree.value()).toBe(expectedStr);
+    // expect(c2.controller.tree.value()).toBe(expectedStr);
+    
+    const op5 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'm', 0));
+    c1.handleRemoteOp(op5);
+    // expectedStr = expectedStr.slice(1);
+    expect(c1.controller.tree.value()).toBe("r");
+    expect(c2.controller.tree.value()).toBe("r");
+
+    const op6 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'k', 0));
+    c1.handleRemoteOp(op6);
+    expect(c1.controller.tree.value()).toBe("kr");
+    expect(c2.controller.tree.value()).toBe("kr");
 });
