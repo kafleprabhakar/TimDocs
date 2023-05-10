@@ -7,13 +7,14 @@ var cors = require('cors');
 app.use(cors());
 
 //
-const peers = [];
+const peers = {};
 
 app.get('/', (req, res) => {
   const id = crypto.randomBytes(16).toString("hex");
   const response = {};
-  response['peers'] = [...peers];
-  peers.push(id);
+  response['peers'] = {...peers};
+  // peers.push(id);
+  peers[id] = req.query.name;
   response['me'] = id;
   console.log(response);
   res.json(response);
