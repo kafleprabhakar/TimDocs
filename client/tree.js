@@ -1,7 +1,7 @@
 import { WChar } from "./utils.js";
 import { WId } from "./utils.js";
 
-class TreeNode {
+export class TreeNode {
     /**
      * 
      * @param {WChar} wChar 
@@ -12,11 +12,32 @@ class TreeNode {
         this.parent = parent;
         this.children = []; 
     }
+
+    static fromObject(obj) {
+        if (obj === null || obj === undefined) {
+            return null;
+        }
+        console.log("Making TreeNode: ", obj);
+        const node = new TreeNode();
+        node.wChar = WChar.fromObject(obj.wChar);
+        node.parent = WId.fromObject(obj.parent);
+        node.children = obj.children.map((child) => TreeNode.fromObject(child));
+        return node;
+    }
 }
 
 export class Tree {
     constructor() {
         this.root = null;
+    }
+
+    static fromObject(obj) {
+        if (obj === null) {
+            return null;
+        }
+        const tree = new Tree();
+        tree.root = TreeNode.fromObject(obj.root);
+        return tree;
     }
 
     /**

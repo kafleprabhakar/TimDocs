@@ -1,3 +1,5 @@
+import { Tree, TreeNode } from "./tree.js";
+
 // Unique identifier for WChar, as defined in WOOT paper
 export class WId {
     /**
@@ -81,7 +83,9 @@ export class WChar {
 
 export const OpType = {
     Insert: "+input",
-    Delete: "+delete"
+    Delete: "+delete",
+    GetDoc: "getDoc",
+    SendDoc: "sendDoc"
 }
 
 export class CRDTOp {
@@ -89,10 +93,12 @@ export class CRDTOp {
      * 
      * @param {OpType} opType 
      * @param {WChar} wChar 
+     * @param {TreeNode} tree 
      */
-    constructor(opType, wChar) {
+    constructor(opType, wChar, tree = null) {
         this.opType = opType;
         this.wChar = wChar;
+        this.tree = tree;
     }
 
     static fromObject(obj) {
@@ -100,6 +106,7 @@ export class CRDTOp {
         // Object.assign(op,obj);
         op.opType = obj.opType;
         op.wChar = WChar.fromObject(obj.wChar);
+        op.tree = Tree.fromObject(obj.tree);
         return op;
     }
 }

@@ -1,9 +1,6 @@
 import { Client } from "./client.js";
 import { CRDTOp, OpType } from "./utils.js";
-
-function createTestClient() {
-
-}
+var os = require("os");
 
 class Pos {
     constructor(ch, line = 0, sticky = null) {
@@ -180,6 +177,10 @@ function operateOnExpected(str, change) {
         return deleteFromExpected(str, change.from.ch);
     }
 }
+
+beforeEach(() => {
+    window.location = {'hostname': os.hostname()};
+});
 
 test('Sync manual inserts', async () => {
     console.log(process.version);

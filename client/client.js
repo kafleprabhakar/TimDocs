@@ -1,6 +1,7 @@
 import { Messenger } from "./messenger.js";
 import { Controller } from "./controller.js";
 import { OpType, CRDTOp, WId, WChar } from "./utils.js";
+import { Tree } from "./tree.js";
 
 // const { Messenger } = require("./messenger.js");
 // const { Controller } = require("./controller.js");
@@ -8,7 +9,7 @@ import { OpType, CRDTOp, WId, WChar } from "./utils.js";
 export class Client {
     constructor(hasEditor, id, peers) {
         this.controller = new Controller(id); 
-        this.messenger = new Messenger(id, peers, this.handleRemoteOp);
+        this.messenger = new Messenger(id, peers, this.handleRemoteMessage, this.listenToConnections);
         this.buffer = []
         // Initialize Editor
         this.hasEditor = hasEditor; // Will be useful if we decide to store everything in the server later on
@@ -23,20 +24,11 @@ export class Client {
 
     initEditor() {
         const editor = document.getElementById("editor");
-        /*
-        let startState = EditorState.create({
-            doc: "text here", 
-            extensions: [keymap.of(defaultKeymap)]
-        })
-        this.editor = EditorView({
-            state: startState,
-            parent: document.body
-        })
-        */
         this.editor = CodeMirror.fromTextArea(editor, {
             mode: "xml",
             theme: "dracula",
-            lineNumbers: false
+            lineNumbers: false,
+            lineWrapping: true,
         });
         this.bindKeyboardActions();
     }
@@ -46,15 +38,12 @@ export class Client {
      * @param {boolean} hasEditor 
      */
     static async makeClient(hasEditor) {
-        const response = await fetch("http://localhost:1800");
+        const response = await fetch("http://" + window.location.hostname + ":1800");
         const jsonData = await response.json();
         return new Client(hasEditor, jsonData.me, jsonData.peers);
     }
 
     bindKeyboardActions() {
-        this.editor.on("keyHandled", (cmd,key,e) => {
-            console.log("keyhandled", key);
-        });
         
         this.editor.on('change', (editor,obj) => this.handleEditorChange(obj));
         
@@ -87,11 +76,15 @@ export class Client {
      */
     isExecutable = (op) => {
         let c = op.wChar
+        
         if (op.opType === OpType.Delete){
             return this.controller.tree.contains(c)
-        } else {
+        } else if (op.opType === OpType.Insert) { 
+            console.log("id prev", op); 
             return this.controller.tree.contains(this.controller.tree.find(c.idPrev)) && 
             this.controller.tree.contains(this.controller.tree.find(c.idNew))
+        } else {
+            return true
         }
     }
 
@@ -113,36 +106,62 @@ export class Client {
 
         this.addBuffer(op);
 
-        while(this.buffer.length!=0){
-            let thisop = op;
-            console.log("op:", op);
-            if (this.isExecutable(this.buffer.pop())){
-                thisop = op;
+        let appliedOp = true;
+        while (appliedOp) {
+            appliedOp = false;
+            const bufferCopy = []
+            for (let op of this.buffer) {
+                if (this.isExecutable(op)) {
+                    if (op.opType === OpType.Insert) {
+                        this.controller.ins(op); 
+                    } else if (op.opType === OpType.Delete) {
+                        this.controller.del(op);
+                    }
+                    if (this.hasEditor)
+                        this.editor.setValue(this.controller.tree.value());
+                    appliedOp = true;
+                } else {
+                    // put back in buffer pool
+                    bufferCopy.push(op);
+                }
             }
+            this.buffer = bufferCopy;
+        }
+    }
 
-            if (op.opType === OpType.Insert) {
-                this.controller.ins(op); 
-                //let text = op.wChar.c; 
-                
-                //let transaction = view.state.update({changes: {from: id, insert: text}})
-                //console.log(transaction.state.doc.toString()) // "0123"
-                // At this point the view still shows the old state.
-                //view.dispatch(transaction)
-                // apply this text 
-                // create a buffer of incoming and ticks 
-                // create counts of client's ticks that it's received 
-            } else if (op.opType === OpType.Delete) {
-                this.controller.del(op);
+    handleTreeRequest = (peer) => {
+        const sendOp = new CRDTOp(OpType.SendDoc, null, this.controller.tree);
+        this.messenger.sendTree(peer, sendOp);
+    }
+
+    integrateTree = (op) => {
+        this.controller.tree = Tree.fromObject(op.tree);
+        if (this.hasEditor)
+            this.editor.setValue(this.controller.tree.value());
+    }
+        
+    handleRemoteMessage = (peer, msg) => {
+        const op = CRDTOp.fromObject(msg);
+        if (op.opType == OpType.GetDoc) {
+            this.handleTreeRequest(peer);
+        } else if (op.opType == OpType.SendDoc) {
+            this.integrateTree(op);
+        } else if (op.opType == OpType.Insert || op.opType == OpType.Delete) {
+            this.handleRemoteOp(op);
+        }
+    }
+
+    listenToConnections = () => {
+        if (this.hasEditor) {
+            const peers = document.getElementById('peer-list');
+            const peerTemplate = document.getElementById('peer-item-template');
+            peers.innerHTML = "";
+            for (let peer in this.messenger.connections) {
+                const thisPeer = peerTemplate.content.cloneNode(true);
+                thisPeer.querySelector(".user-name").innerHTML = peer;
+                thisPeer.querySelector(".user-icon").style["background-color"] = this.messenger.connections[peer].color;
+                peers.appendChild(thisPeer);
             }
-            // let id = op.wChar.id;
-                //console.log("text", text);
-                //let text = this.editor.getValue();
-                // edit the text, for example  
-                // set the text back to the editor
-            if (this.hasEditor)
-                this.editor.setValue(this.controller.tree.value());
         }
-        }
-        
-        
+    }
 }
