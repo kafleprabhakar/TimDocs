@@ -89,11 +89,15 @@ export class Client {
      */
     isExecutable = (op) => {
         let c = op.wChar
+        
         if (op.opType === OpType.Delete){
             return this.controller.tree.contains(c)
-        } else {
+        } else if (op.opType === OpType.Insert) { 
+            console.log("id prev", op); 
             return this.controller.tree.contains(this.controller.tree.find(c.idPrev)) && 
             this.controller.tree.contains(this.controller.tree.find(c.idNew))
+        } else {
+            return true
         }
     }
 
@@ -116,10 +120,14 @@ export class Client {
         this.addBuffer(op);
 
         while(this.buffer.length!=0){
-            let thisop = op;
+            //let thisop = op;
             // Need to implement this logic
-            if (this.buffer.pop()){
-                thisop = op;
+            let poppedop = this.buffer.pop();
+            if (this.isExecutable(poppedop)) {
+                op = poppedop;
+            } else {
+                // put back in buffer pool 
+                this.buffer.push(poppedop);
             }
 
             if (op.opType === OpType.Insert) {
