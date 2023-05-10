@@ -10,6 +10,16 @@ export class WId {
         this.numTick = numTick;
     }
 
+    static fromObject(obj) {
+        if (obj == null) {
+            return null;
+        }
+        const wid = new WId();
+        wid.numSite = obj.numSite;
+        wid.numTick = obj.numTick;
+        return wid;
+    }
+
     /**
      * 
      * @param {WId} wId 
@@ -48,6 +58,19 @@ export class WChar {
         this.idNew = idNew;
     }
 
+    static fromObject(obj) {
+        if (obj == null) {
+            return null;
+        }
+        const wc = new WChar();
+        wc.id = WId.fromObject(obj.id);
+        wc.c = obj.c;
+        wc.visible = obj.visible;
+        wc.idPrev = WId.fromObject(obj.idPrev);
+        wc.idNew = WId.fromObject(obj.idNew);
+        return wc;
+    }
+
     // Returns the message of this CRDT Operation to be sent to peers
     toMessage() {
         return {
@@ -74,7 +97,9 @@ export class CRDTOp {
 
     static fromObject(obj) {
         const op = new CRDTOp();
-        Object.assign(op,obj);
+        // Object.assign(op,obj);
+        op.opType = obj.opType;
+        op.wChar = WChar.fromObject(obj.wChar);
         return op;
     }
 }

@@ -54,6 +54,7 @@ export class Controller {
      * @param {CRDTOp} op
      */
     ins(op) {
+        op = CRDTOp.fromObject(op);
         if (this.isExecutable(op)) {
             this.integrateInsert(op.wChar, op.wChar.idPrev, op.wChar.idNew);
         } else {
@@ -67,6 +68,7 @@ export class Controller {
      * @param {CRDTOp} op 
      */
     del(op) {
+        op = CRDTOp.fromObject(op);
         if (this.isExecutable(op)) {
             this.integrateDelete(op.wChar);
         } else {

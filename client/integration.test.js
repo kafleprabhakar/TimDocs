@@ -196,7 +196,7 @@ test('Sync manual inserts', async () => {
     expect(c2.controller.tree.value()).toBe(expectedStr);
     
     const op5 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'b', 0));
-    c1.handleRemoteOp(op2);
+    c1.handleRemoteOp(op5);
     expectedStr = expectedStr.slice(1);
     expect(c1.controller.tree.value()).toBe(expectedStr);
     expect(c2.controller.tree.value()).toBe(expectedStr);
@@ -268,53 +268,4 @@ test("Automated concurrent inserts", async () => {
 
 test("Automated concurrent inserts and deletes", async () => {
     await testConcurrentOps(true);
-});
-
-test('TEST VW', async () => {
-    console.log(process.version);
-    const c1 = await Client.makeClient(false);
-    const c2 = await Client.makeClient(false);
-    const isC1Lower = (c1.controller.siteId.localeCompare(c1.controller.siteId) === -1);
-    console.log("C1:", c1.controller.siteId);
-    
-    const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'w', 0));
-    c2.handleRemoteOp(op);
-    expect(c1.controller.tree.value()).toBe('w');
-    expect(c2.controller.tree.value()).toBe('w');
-
-    const op2 = c1.handleEditorChange(createChangeObject(OpType.Insert, 'v', 0));
-    expect(c1.controller.tree.value()).toBe('vw');
-    c2.handleRemoteOp(op2);
-    expect(c1.controller.tree.value()).toBe('vw');
-    expect(c2.controller.tree.value()).toBe('vw');
-
-    // const op3 = c1.handleEditorChange(createChangeObject(OpType.Delete, 'c', 1));
-    // const op4 = c2.handleEditorChange(createChangeObject(OpType.D, 'd', 1));
-    // expect(c1.controller.tree.value()).toBe('bca');
-    // expect(c2.controller.tree.value()).toBe('bda');
-    // console.log("Op4:", op4);
-    // c1.handleRemoteOp(op4);
-    // c2.handleRemoteOp(op3);
-
-    // let expectedStr = '';
-    // if (op3.wChar.id.isLessThan(op4.wChar.id)) {
-    //     expectedStr = 'bcda';
-    // } else {
-    //     expectedStr = 'bdca';
-    // }
-    // global.expected = expectedStr;
-    // console.log("Expected:", expectedStr);
-    // expect(c1.controller.tree.value()).toBe(expectedStr);
-    // expect(c2.controller.tree.value()).toBe(expectedStr);
-    
-    const op5 = c1.handleEditorChange(createChangeObject(OpType.Delete, 'v', 0));
-    expect(c1.controller.tree.value()).toBe("w");
-    expect(c2.controller.tree.value()).toBe("vw");
-    const op6 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'w', 1));
-    expect(c2.controller.tree.value()).toBe("v");
-    c2.handleRemoteOp(op5);
-    c1.handleRemoteOp(op6);
-    // expectedStr = expectedStr.slice(1);
-    expect(c1.controller.tree.value()).toBe("");
-    expect(c2.controller.tree.value()).toBe("");
 });
