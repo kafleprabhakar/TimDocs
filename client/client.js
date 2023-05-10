@@ -1,6 +1,7 @@
 import { Messenger } from "./messenger.js";
 import { Controller } from "./controller.js";
 import { OpType, CRDTOp, WId, WChar } from "./utils.js";
+import { Tree } from "./tree.js";
 
 // const { Messenger } = require("./messenger.js");
 // const { Controller } = require("./controller.js");
@@ -46,7 +47,7 @@ export class Client {
      * @param {boolean} hasEditor 
      */
     static async makeClient(hasEditor) {
-        const response = await fetch("http://localhost:1800");
+        const response = await fetch("http://" + window.location.hostname + ":1800");
         const jsonData = await response.json();
         return new Client(hasEditor, jsonData.me, jsonData.peers);
     }
@@ -115,10 +116,11 @@ export class Client {
         this.addBuffer(op);
 
         while(this.buffer.length!=0){
-            // let thisop = op;
-            // if (this.isExecutable(this.buffer.pop())){
-            //     thisop = op;
-            // }
+            let thisop = op;
+            // Need to implement this logic
+            if (this.buffer.pop()){
+                thisop = op;
+            }
 
             if (op.opType === OpType.Insert) {
                 this.controller.ins(op); 
@@ -134,7 +136,7 @@ export class Client {
             } else if (op.opType === OpType.Delete) {
                 this.controller.del(op);
             } else if (op.opType === OpType.SendDoc) {
-                this.controller.tree = op.tree;
+                this.controller.tree = Tree.fromObject(op.tree);
             }
             // let id = op.wChar.id;
                 //console.log("text", text);

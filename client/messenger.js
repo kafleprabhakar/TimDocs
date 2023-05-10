@@ -58,16 +58,17 @@ export class Messenger {
         console.log("Messenger", this);
 
         if (data.opType == OpType.Insert || data.opType == OpType.Delete) {
-            const wid = new WId(data.wChar.id.numSite, data.wChar.id.numTick);
-            let idPrev = null;
-            let idNext = null;
-            if (data.wChar.idPrev != null)
-                idPrev = new WId(data.wChar.idPrev.numSite, data.wChar.idPrev.numTick);
+            // const wid = new WId(data.wChar.id.numSite, data.wChar.id.numTick);
+            // let idPrev = null;
+            // let idNext = null;
+            // if (data.wChar.idPrev != null)
+            //     idPrev = new WId(data.wChar.idPrev.numSite, data.wChar.idPrev.numTick);
 
-            if (data.wChar.idNew != null)
-                idNext = new WId(data.wChar.idNew.numSite, data.wChar.idNew.numTick);
-            let wChar = new WChar(wid, data.wChar.c, data.wChar.visible, idPrev, idNext);
-            let crdtOp = new CRDTOp(data.opType, wChar);
+            // if (data.wChar.idNew != null)
+            //     idNext = new WId(data.wChar.idNew.numSite, data.wChar.idNew.numTick);
+            // let wChar = new WChar(wid, data.wChar.c, data.wChar.visible, idPrev, idNext);
+            // let crdtOp = new CRDTOp(data.opType, wChar);
+            let crdtOp = CRDTOp.fromObject(data);
             this.handleFunc(crdtOp);
         } else if (data.opType == OpType.GetDoc) {
             this.handleNewTreeRequest(peer);
