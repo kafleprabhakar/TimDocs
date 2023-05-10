@@ -24,11 +24,11 @@ export class Controller {
         const cn = this.tree.ithVisible(pos);
         const wid = new WId(this.siteId, this.tick);
         let cp_id = null;
-        if (cp != undefined) {
+        if (cp != null) {
             cp_id = cp.id;
         }
         let cn_id = null;
-        if (cn != undefined) {
+        if (cn != null) {
             cn_id = cn.id;
         }
         const wChar = new WChar(wid, c, true, cp_id, cn_id);
@@ -98,7 +98,8 @@ export class Controller {
 
         // find sequence 
         // insert at next position 
-        let wchar_prev, wchar_next = null;
+        let wchar_prev = null;
+        let wchar_next = null;
         if (wchar_prev_id != null) {
             wchar_prev = this.tree.find(wchar_prev_id);
         }
@@ -136,7 +137,15 @@ export class Controller {
             while (i < L.length - 1 && (L[i].id.isLessThan(wchar.id))){ 
                 i += 1;
             }
-            return this.integrateInsert(wchar, L[i-1].id, L[i].id);
+            let newPrev = null;
+            let newNext = null;
+            if (L[i-1] != null) {
+                newPrev = L[i-1].id;
+            }
+            if (L[i] != null) {
+                newNext = L[i].id;
+            }
+            return this.integrateInsert(wchar, newPrev, newNext);
         }
     }
 
@@ -148,7 +157,9 @@ export class Controller {
     integrateDelete(wChar) {
         // set visible char to false 
         const p = this.tree.pos(wChar);
-        this.tree.delete(p);
+        const delSucceed = this.tree.delete(p);
+        console.log("delSucceed:", delSucceed);
+        console.log("wChar:", wChar);
         // console.log("Wchar id in integratedel", this.tree.find(wChar.id));
         // this.tree.find(wChar.id).visible = false;
         // console.log("Wchar id in integratedel after invisible", this.tree.find(wChar.id));

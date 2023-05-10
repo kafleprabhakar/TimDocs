@@ -72,7 +72,7 @@ export class Client {
         if (change.origin == "+input") {
             op = this.controller.generateInsert(change.text[0], change.from.ch);
         } else if (change.origin == "+delete") { // This could be a paste too. But for the time being only handling insert and delete
-            op = this.controller.generateDelete(this.cursorPosition);
+            op = this.controller.generateDelete(change.from.ch);
         }
         // send vector clock 
         this.messenger.broadcast(op);
@@ -134,7 +134,7 @@ export class Client {
             } else if (op.opType === OpType.Delete) {
                 this.controller.del(op);
             }
-            let id = op.wChar.id;
+            // let id = op.wChar.id;
                 //console.log("text", text);
                 //let text = this.editor.getValue();
                 // edit the text, for example  

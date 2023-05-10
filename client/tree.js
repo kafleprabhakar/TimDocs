@@ -79,7 +79,7 @@ export class Tree {
                 count += 1;
             }
         }
-        return undefined;
+        return null;
     }
 
     /**
@@ -183,7 +183,7 @@ export class Tree {
     /**
      * Gets the previous WChar (does not have to be visible)
      * @param {WChar} c 
-     * @returns Previous WChar. If none exist, returns -1.
+     * @returns Previous WChar. If none exist, returns null.
      */
     CP(c) {
         let tree = [...this.preOrderTraversal()];
@@ -194,13 +194,13 @@ export class Tree {
                 }
             }
         }
-        return undefined;
+        return null;
     }
 
     /**
      * Gets the next WChar (does not have to be visible)
      * @param {WChar} c 
-     * @returns 
+     * @returns Next WChar. If none exist, returns null.
      */
     CN(c) {
         let tree = [...this.preOrderTraversal()];
@@ -211,7 +211,7 @@ export class Tree {
                 }
             }
         }
-        return undefined;
+        return null;
     }
 
     /**
@@ -231,7 +231,7 @@ export class Tree {
      * Returns the part of S between the elements c and d (excluding c and d)
      * @param {WChar} c 
      * @param {WChar} d 
-     * @returns {WChar[]} Undefined if d is not to be found after c
+     * @returns {WChar[]} Empty array if d is not to be found after c
      */
     subseq(c, d) {
         let seq = [];

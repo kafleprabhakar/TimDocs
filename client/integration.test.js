@@ -83,6 +83,69 @@ function deleteFromExpected(str, pos) {
     return str.slice(0, pos) + str.slice(pos + 1);
 }
 
+async function testConcurrentOps (deleteOp=false) {
+    const c1 = await Client.makeClient(false);
+    const c2 = await Client.makeClient(false);
+    const c3 = await Client.makeClient(false);
+    const clients = [c1, c2, c3];
+
+    let expectedStr = '';
+    for (let i = 0; i < 100; i++) {
+        let ops = [];
+        let changes = [];
+        for (let j = 0; j < 2; j++) {
+            let opType = null;
+            let pos = null;
+            let char = null;
+
+            if (Math.random() < 0.3 && expectedStr.length > 0 && deleteOp) {
+                opType = OpType.Delete;
+                pos = Math.floor(Math.random() * expectedStr.length);
+                char = expectedStr[pos];
+            } else {
+                opType = OpType.Insert;
+                pos = Math.floor(Math.random() * (expectedStr.length + 1));
+                char = getRandomCharacter();
+            }
+            const ch = createChangeObject(opType, char, pos);
+            const op = clients[j].handleEditorChange(ch);
+            changes.push(ch);
+            ops.push(op);
+        }
+
+        let firstOp = changes[1];
+        let secondOp = changes[0];
+        if (ops[0].wChar.id.isLessThan(ops[1].wChar.id)) {
+            firstOp = changes[0];
+            secondOp = changes[1];
+        }
+
+        expectedStr = operateOnExpected(expectedStr, firstOp);
+        if (firstOp.from.ch <= secondOp.from.ch) {
+            if (firstOp.origin == OpType.Insert) {
+                secondOp.from.ch += 1;
+                secondOp.to.ch += 1;
+            } else {
+                secondOp.from.ch -= 1;
+                secondOp.to.ch -= 1;
+            }
+        }
+        expectedStr = operateOnExpected(expectedStr, secondOp);
+        console.log("Iteration ", i, ", the expected string: ", expectedStr);
+
+        c1.handleRemoteOp(ops[1]);
+        c2.handleRemoteOp(ops[0]);
+        // Apply op1 and op2 in random order
+        const first = Math.floor(Math.random() * ops.length);
+        c3.handleRemoteOp(ops[first]);
+        c3.handleRemoteOp(ops[1-first]);
+
+        for (let c of clients) {
+            expect(c.controller.tree.value()).toBe(expectedStr);
+        }
+    }
+}
+
 /**
  * 
  * @param {string} str 
@@ -199,65 +262,59 @@ test("Automated serialized inserts and deletes", async () => {
     }
 });
 
+test("Automated concurrent inserts", async () => {
+    await testConcurrentOps();
+});
+
 test("Automated concurrent inserts and deletes", async () => {
+    await testConcurrentOps(true);
+});
+
+test('TEST VW', async () => {
+    console.log(process.version);
     const c1 = await Client.makeClient(false);
     const c2 = await Client.makeClient(false);
-    const c3 = await Client.makeClient(false);
-    const clients = [c1, c2, c3];
+    const isC1Lower = (c1.controller.siteId.localeCompare(c1.controller.siteId) === -1);
+    console.log("C1:", c1.controller.siteId);
+    
+    const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'w', 0));
+    c2.handleRemoteOp(op);
+    expect(c1.controller.tree.value()).toBe('w');
+    expect(c2.controller.tree.value()).toBe('w');
 
-    let expectedStr = '';
-    for (let i = 0; i < 100; i++) {
-        let ops = [];
-        let changes = [];
-        for (let j = 0; j < 2; j++) {
-            let opType = null;
-            let pos = null;
-            let char = null;
+    const op2 = c1.handleEditorChange(createChangeObject(OpType.Insert, 'v', 0));
+    expect(c1.controller.tree.value()).toBe('vw');
+    c2.handleRemoteOp(op2);
+    expect(c1.controller.tree.value()).toBe('vw');
+    expect(c2.controller.tree.value()).toBe('vw');
 
-            if (Math.random() < 0.3 && expectedStr.length > 0) {
-                opType = OpType.Delete;
-                pos = Math.floor(Math.random() * expectedStr.length);
-                char = expectedStr[pos];
-            } else {
-                opType = OpType.Insert;
-                pos = Math.floor(Math.random() * (expectedStr.length + 1));
-                char = getRandomCharacter();
-            }
-            const ch = createChangeObject(opType, char, pos);
-            const op = clients[j].handleEditorChange(ch);
-            changes.push(ch);
-            ops.push(op);
-        }
+    // const op3 = c1.handleEditorChange(createChangeObject(OpType.Delete, 'c', 1));
+    // const op4 = c2.handleEditorChange(createChangeObject(OpType.D, 'd', 1));
+    // expect(c1.controller.tree.value()).toBe('bca');
+    // expect(c2.controller.tree.value()).toBe('bda');
+    // console.log("Op4:", op4);
+    // c1.handleRemoteOp(op4);
+    // c2.handleRemoteOp(op3);
 
-        let firstOp = changes[1];
-        let secondOp = changes[0];
-        if (ops[0].wChar.id.isLessThan(ops[1].wChar.id)) {
-            firstOp = changes[0];
-            secondOp = changes[1];
-        }
-
-        expectedStr = operateOnExpected(expectedStr, firstOp);
-        if (firstOp.from.ch <= secondOp.from.ch) {
-            if (firstOp.origin == OpType.Insert) {
-                secondOp.from.ch += 1;
-                secondOp.to.ch += 1;
-            } else {
-                secondOp.from.ch -= 1;
-                secondOp.to.ch -= 1;
-            }
-        }
-        expectedStr = operateOnExpected(expectedStr, secondOp);
-        console.log("Iteration ", i, ", the expected string: ", expectedStr);
-
-        c1.handleRemoteOp(ops[1]);
-        c2.handleRemoteOp(ops[0]);
-        // Apply op1 and op2 in random order
-        const first = Math.floor(Math.random() * ops.length);
-        c3.handleRemoteOp(ops[first]);
-        c3.handleRemoteOp(ops[1-first]);
-
-        for (let c in clients) {
-            expect(c.controller.tree.value()).toBe(expectedStr);
-        }
-    }
+    // let expectedStr = '';
+    // if (op3.wChar.id.isLessThan(op4.wChar.id)) {
+    //     expectedStr = 'bcda';
+    // } else {
+    //     expectedStr = 'bdca';
+    // }
+    // global.expected = expectedStr;
+    // console.log("Expected:", expectedStr);
+    // expect(c1.controller.tree.value()).toBe(expectedStr);
+    // expect(c2.controller.tree.value()).toBe(expectedStr);
+    
+    const op5 = c1.handleEditorChange(createChangeObject(OpType.Delete, 'v', 0));
+    expect(c1.controller.tree.value()).toBe("w");
+    expect(c2.controller.tree.value()).toBe("vw");
+    const op6 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'w', 1));
+    expect(c2.controller.tree.value()).toBe("v");
+    c2.handleRemoteOp(op5);
+    c1.handleRemoteOp(op6);
+    // expectedStr = expectedStr.slice(1);
+    expect(c1.controller.tree.value()).toBe("");
+    expect(c2.controller.tree.value()).toBe("");
 });
