@@ -67,7 +67,7 @@ export class Client {
 
     // Adds the character c to the document tree and broadcasts to other peers
     handleEditorChange(change) {
-        console.log("Change:", change);
+        // console.log("Change:", change);
         let op = null;
         if (change.origin == "+input") {
             op = this.controller.generateInsert(change.text[0], change.from.ch);
@@ -91,8 +91,8 @@ export class Client {
         if (op.opType === OpType.Delete){
             return this.controller.tree.contains(c)
         } else {
-            return this.controller.tree.contains(this.tree.find(c.idPrev)) && 
-            this.controller.tree.contains(this.tree.find(c.idNew))
+            return this.controller.tree.contains(this.controller.tree.find(c.idPrev)) && 
+            this.controller.tree.contains(this.controller.tree.find(c.idNew))
         }
     }
 
@@ -135,7 +135,6 @@ export class Client {
                 this.controller.del(op);
             }
             let id = op.wChar.id;
-                console.log("id", id);
                 //console.log("text", text);
                 //let text = this.editor.getValue();
                 // edit the text, for example  

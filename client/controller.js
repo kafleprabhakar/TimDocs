@@ -108,7 +108,7 @@ export class Controller {
 
         const sequence = this.tree;
         const subseq = sequence.subseq(wchar_prev, wchar_next);
-        console.log("sub", subseq);
+        // console.log("sub", subseq);
         // If wchar is in between prev and next, subseq should have 0 length.
         if (subseq.length == 0) {
             const posi = this.tree.pos(wchar_next, false);
@@ -151,7 +151,7 @@ export class Controller {
         this.tree.delete(p);
         // console.log("Wchar id in integratedel", this.tree.find(wChar.id));
         // this.tree.find(wChar.id).visible = false;
-        console.log("Wchar id in integratedel after invisible", this.tree.find(wChar.id));
+        // console.log("Wchar id in integratedel after invisible", this.tree.find(wChar.id));
         
         //wChar.visible = false // might have to do something more complicated 
 
