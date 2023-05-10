@@ -7,9 +7,9 @@ import { Tree } from "./tree.js";
 // const { Controller } = require("./controller.js");
 
 export class Client {
-    constructor(hasEditor, id, peers) {
+    constructor(hasEditor, id, name, peers) {
         this.controller = new Controller(id); 
-        this.messenger = new Messenger(id, peers, this.handleRemoteMessage, this.listenToConnections);
+        this.messenger = new Messenger(id, name, peers, this.handleRemoteMessage, this.listenToConnections);
         this.buffer = []
         // Initialize Editor
         this.hasEditor = hasEditor; // Will be useful if we decide to store everything in the server later on
@@ -38,9 +38,12 @@ export class Client {
      * @param {boolean} hasEditor 
      */
     static async makeClient(hasEditor) {
-        const response = await fetch("http://" + window.location.hostname + ":1800");
+        let name = 'A';
+        if (hasEditor) 
+            name = prompt("Your name", "Anonymous");
+        const response = await fetch("http://" + window.location.hostname + ":1800/?name="+name);
         const jsonData = await response.json();
-        return new Client(hasEditor, jsonData.me, jsonData.peers);
+        return new Client(hasEditor, jsonData.me, name, jsonData.peers);
     }
 
     bindKeyboardActions() {
@@ -152,13 +155,15 @@ export class Client {
     }
 
     listenToConnections = () => {
+        console.log("Got signal for new client joining");
         if (this.hasEditor) {
             const peers = document.getElementById('peer-list');
             const peerTemplate = document.getElementById('peer-item-template');
             peers.innerHTML = "";
+            peers.appendChild(peerTemplate);
             for (let peer in this.messenger.connections) {
                 const thisPeer = peerTemplate.content.cloneNode(true);
-                thisPeer.querySelector(".user-name").innerHTML = peer;
+                thisPeer.querySelector(".user-name").innerHTML = this.messenger.connections[peer].name;
                 thisPeer.querySelector(".user-icon").style["background-color"] = this.messenger.connections[peer].color;
                 peers.appendChild(thisPeer);
             }

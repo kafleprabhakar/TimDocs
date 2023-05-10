@@ -17,14 +17,19 @@ export class Messenger {
      * @param {string[]} peers 
      * @param {Controller} controller 
      */
-    constructor(id, peers, handleFunc, signalConnection) {
+    constructor(id, name, peers, handleFunc, signalConnection) {
         this.me = new Peer(id);
+        this.name = name;
+        this.allPeers = peers;
         this.connections = {}
         this.me.on("open", (id) => {
             this.listenForConnection();
 
-            for (let i = 0; i < peers.length; i++) {
-                this.establishConnection(peers[i]);
+            // for (let i = 0; i < peers.length; i++) {
+            //     this.establishConnection(peers[i]);
+            // }
+            for (let peer in peers) {
+                this.establishConnection(peer);
             }
         });
         this.handleFunc = handleFunc;
@@ -32,11 +37,12 @@ export class Messenger {
     }
 
     establishConnection(peer) {
-        var conn = this.me.connect(peer);
+        var conn = this.me.connect(peer, {"metadata": {'name': this.name}});
         conn.on("open", () => {
             this.connections[peer] = {
                 'conn': conn,
-                'color': getRandomColor()
+                'color': getRandomColor(),
+                'name': this.allPeers[peer]
             };
             console.log("Connected to peer", peer);
             // Send messages
@@ -52,7 +58,8 @@ export class Messenger {
         this.me.on("connection", (conn) => {
             this.connections[conn.peer] = {
                 'conn': conn,
-                'color': getRandomColor()
+                'color': getRandomColor(),
+                'name': conn.metadata.name
             };
             conn.on("data", (data) => this.listenForData(conn.peer, data));
             conn.on("close", () => {
