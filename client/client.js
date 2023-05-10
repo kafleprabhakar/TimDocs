@@ -9,7 +9,7 @@ import { Tree } from "./tree.js";
 export class Client {
     constructor(hasEditor, id, peers) {
         this.controller = new Controller(id); 
-        this.messenger = new Messenger(id, peers, this.handleRemoteMessage);
+        this.messenger = new Messenger(id, peers, this.handleRemoteMessage, this.listenToConnections);
         this.buffer = []
         // Initialize Editor
         this.hasEditor = hasEditor; // Will be useful if we decide to store everything in the server later on
@@ -149,6 +149,20 @@ export class Client {
             this.integrateTree(op);
         } else if (op.opType == OpType.Insert || op.opType == OpType.Delete) {
             this.handleRemoteOp(op);
+        }
+    }
+
+    listenToConnections = () => {
+        if (this.hasEditor) {
+            const peers = document.getElementById('peer-list');
+            const peerTemplate = document.getElementById('peer-item-template');
+            peers.innerHTML = "";
+            for (let peer in this.messenger.connections) {
+                const thisPeer = peerTemplate.content.cloneNode(true);
+                thisPeer.querySelector(".user-name").innerHTML = peer;
+                thisPeer.querySelector(".user-icon").style["background-color"] = this.messenger.connections[peer].color;
+                peers.appendChild(thisPeer);
+            }
         }
     }
 }

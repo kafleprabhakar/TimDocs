@@ -1,6 +1,13 @@
 import { Controller } from './controller.js';
 import { WId, WChar, CRDTOp, OpType } from './utils.js';
 
+function getRandomColor() {
+    const colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', 
+                    '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe',
+                    '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000',
+                    '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080']
+    return colors[Math.floor(Math.random() * colors.length)];
+}
 // const {CRDTOp, OpType} = require('./utils.js');
 
 export class Messenger {
@@ -10,7 +17,7 @@ export class Messenger {
      * @param {string[]} peers 
      * @param {Controller} controller 
      */
-    constructor(id, peers, handleFunc) {
+    constructor(id, peers, handleFunc, signalConnection) {
         this.me = new Peer(id);
         this.connections = {}
         this.me.on("open", (id) => {
@@ -21,29 +28,37 @@ export class Messenger {
             }
         });
         this.handleFunc = handleFunc;
+        this.signalConnection = signalConnection;
     }
 
     establishConnection(peer) {
         var conn = this.me.connect(peer);
         conn.on("open", () => {
-            this.connections[peer] = conn;
+            this.connections[peer] = {
+                'conn': conn,
+                'color': getRandomColor()
+            };
             console.log("Connected to peer", peer);
             // Send messages
             // conn.send("Hello!"); // heartbeat
             const getDocOp = new CRDTOp(OpType.GetDoc, null);
             conn.send(getDocOp);
             conn.on("data", (data) => this.listenForData(peer, data));
-
+            this.signalConnection();
         });
     } 
 
     listenForConnection() {
         this.me.on("connection", (conn) => {
-            this.connections[conn.peer] = conn;
+            this.connections[conn.peer] = {
+                'conn': conn,
+                'color': getRandomColor()
+            };
             conn.on("data", (data) => this.listenForData(conn.peer, data));
             conn.on("close", () => {
                 console.log("Closed connection with peer", conn.peer);
-            })
+            });
+            this.signalConnection();
         });
     }
 
@@ -85,21 +100,21 @@ export class Messenger {
         for (let key in this.connections) {
             if (key!=this.me) {
                 console.log("am i getting hit here?");
-                this.connections[key].send(data);
+                this.connections[key].conn.send(data);
             }
         } 
         
     }
 
     sendTree = (peer, sendOp) => {
-        this.connections[peer].send(sendOp);
+        this.connections[peer].conn.send(sendOp);
     }
 
     heartbeat() { 
         for (let key in this.connections) {
             if (key!=this.me) {
-                this.connections[key].send("heartbeat", "");
-                this.connections[key].on("received heartbeat")
+                this.connections[key].conn.send("heartbeat", "");
+                this.connections[key].conn.on("received heartbeat")
             }
         }  
 
