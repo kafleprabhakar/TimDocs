@@ -119,3 +119,43 @@ test('Mix of insert and delete', () => {
     const expectedOp4 = new CRDTOp(OpType.Delete, expectedWChar4);
     expect(op4).toEqual(expectedOp4);
 });
+
+test('Check for idempotent operations', () => {
+    const testController = createTestController(1, 4);
+    expect(testController.tree.value()).toBe('abcd');
+    const op1 = testController.generateInsert('A', 0);
+    const expectedWChar1 = new WChar(new WId(1, 4), 'A', true, null, new WId(1, 0));
+    const expectedOp1 = new CRDTOp(OpType.Insert, expectedWChar1);
+    expect(op1).toEqual(expectedOp1);
+    expect(testController.tree.value()).toBe('Aabcd');
+
+    // Apply the same insert again
+    testController.ins(op1);
+    expect(testController.tree.value()).toBe('Aabcd');
+    
+    // Delete one
+    const op2 = testController.generateDelete(1);
+    const expectedWChar2 = new WChar(new WId(1, 0), 'a', false, null, null);
+    const expectedOp2 = new CRDTOp(OpType.Delete, expectedWChar2);
+    expect(op2).toEqual(expectedOp2);
+    expect(testController.tree.value()).toBe('Abcd');
+
+    // Apply the same delete again
+    testController.del(op2);
+    expect(testController.tree.value()).toBe('Abcd');
+
+    // Insert one more
+    const op3 = testController.generateInsert('B', 1);
+    const expectedWChar3 = new WChar(new WId(1, 5), 'B', true, new WId(1, 4), new WId(1, 1));
+    const expectedOp3 = new CRDTOp(OpType.Insert, expectedWChar3);
+    expect(op3).toEqual(expectedOp3);
+    expect(testController.tree.value()).toBe('ABbcd');
+
+    // Apply the same insert again
+    testController.ins(op3);
+    expect(testController.tree.value()).toBe('ABbcd');
+
+    // Apply the first insert again
+    testController.ins(op1);
+    expect(testController.tree.value()).toBe('ABbcd');
+});
