@@ -118,7 +118,6 @@ export class Messenger {
     broadcast(data) {
         for (let key in this.connections) {
             if (key!=this.me) {
-                console.log("am i getting hit here?");
                 this.connections[key].conn.send(data);
             }
         } 

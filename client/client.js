@@ -53,9 +53,9 @@ export class Client {
         this.editor.on('change', (editor,obj) => this.handleEditorChange(obj));
         
         this.editor.on('cursorActivity', (editor) => {
-            console.log("Cursor: ", editor.getCursor());
+            // console.log("Cursor: ", editor.getCursor());
             this.cursorPosition = editor.getCursor().ch; // Assuming single line for the time being
-            console.log("Selection: ", editor.getSelection());
+            // console.log("Selection: ", editor.getSelection());
         });
     }
 
@@ -87,7 +87,7 @@ export class Client {
         if (op.opType === OpType.Delete){
             return this.controller.tree.contains(c)
         } else if (op.opType === OpType.Insert) { 
-            console.log("id prev", op); 
+            // console.log("id prev", op); 
             return this.controller.tree.contains(this.controller.tree.find(c.idPrev)) && 
             this.controller.tree.contains(this.controller.tree.find(c.idNew))
         } else {
@@ -145,14 +145,14 @@ export class Client {
     }
     
     handleHeartbeat = (peer) => {
-        console.log("handle heartbeat");
+        // console.log("handle heartbeat");
         const ackOp = new CRDTOp(OpType.Ack, null, this.controller.tree);
         this.messenger.sendAck(ackOp);  
 
     }
 
     handleAck = (peer, versionNum) => {
-        console.log("handle ack") 
+        // console.log("handle ack") 
         //this.connections[peer].conn.on("error");
         //this.connections[peer].conn.send(ackOp)
         this.messenger.mapHeartbeats[peer] = 0; 
@@ -187,7 +187,7 @@ export class Client {
     }
 
     listenToConnections = () => {
-        console.log("Got signal for new client joining");
+        // console.log("Got signal for new client joining");
         if (this.hasEditor) {
             const peers = document.getElementById('peer-list');
             const peerTemplate = document.getElementById('peer-item-template');

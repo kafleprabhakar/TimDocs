@@ -117,8 +117,6 @@ async function testConcurrentOps (deleteOp=false) {
             firstOp = changes[0];
             secondOp = changes[1];
         }
-        console.log("firstOp:", firstOp);
-        console.log("secondOp:", secondOp);
 
         expectedStr = operateOnExpected(expectedStr, firstOp);
         let doSecond = true;
@@ -131,33 +129,21 @@ async function testConcurrentOps (deleteOp=false) {
             else if (firstOp.from.ch < secondOp.from.ch) {
                 secondOp.from.ch -= 1;
                 secondOp.to.ch -= 1;
-            } 
-            // else {
-            //     doSecond = false;
-            // }
+            }
         }
         if (firstOp.origin == OpType.Delete && secondOp.origin == OpType.Delete && ops[0].wChar.id.isEqual(ops[1].wChar.id)) {
             doSecond = false;
-            // expectedStr = operateOnExpected(expectedStr, secondOp);
         }
         if (doSecond) {
             expectedStr = operateOnExpected(expectedStr, secondOp);
         }
-        // expectedStr = operateOnExpected(expectedStr, secondOp);
-        console.log("Iteration ", i, ", the expected string: ", expectedStr);
 
-        console.log("c1 before ops[1]:", c1.controller.tree.value());
         c1.handleRemoteOp(ops[1]);
-        console.log("c1 after ops[1]:", c1.controller.tree.value());
-        console.log("c2 before ops[0]:", c2.controller.tree.value());
         c2.handleRemoteOp(ops[0]);
-        console.log("c2 after ops[0]:", c2.controller.tree.value());
         // Apply op1 and op2 in random order
         const first = Math.floor(Math.random() * ops.length);
         c3.handleRemoteOp(ops[first]);
-        console.log("c3 after ops[first]:", c3.controller.tree.value());
         c3.handleRemoteOp(ops[1-first]);
-        console.log("c3 after ops[1-first]:", c3.controller.tree.value());
 
         for (let c of clients) {
             expect(c.controller.tree.value()).toBe(expectedStr);
@@ -339,4 +325,59 @@ test('KO', async () => {
     c1.handleRemoteOp(op6);
     expect(c1.controller.tree.value()).toBe("kr");
     expect(c2.controller.tree.value()).toBe("kr");
+});
+
+test("Ultimate Stress Test", async () => {
+    const clients = [];
+    const n = 5
+    for (let i = 0; i < n; i++) {
+        clients.push(await Client.makeClient(false));
+    }
+
+    for (let i = 0; i < 1; i++) {
+        const ops = [];
+        for (let j = 0; j < 20; j++) {
+            console.log("---------------New Iteration-------------");
+            let opType = null;
+            let pos = null;
+            let char = null;
+
+            const ci = Math.floor(Math.random() * n);
+            const c = clients[ci];
+            const currentStr = c.controller.tree.value();
+
+            if (Math.random() < 0.3 && currentStr.length > 0) {
+                opType = OpType.Delete;
+                pos = Math.floor(Math.random() * currentStr.length);
+                char = currentStr[pos];
+            } else {
+                opType = OpType.Insert;
+                pos = Math.floor(Math.random() * (currentStr.length + 1));
+                char = getRandomCharacter();
+            }
+            
+            const ch = createChangeObject(opType, char, pos);
+            console.log("Adding change to primary");
+            const op = c.handleEditorChange(ch);
+            ops.push(op);
+
+            for (let k = 0; k < n; k++) {
+                if (ci != k && Math.random() < 0.3) {
+                    console.log("Adding change to random secondary");
+                    clients[k].handleRemoteOp(op);
+                }
+            }
+        }
+        for (let op of ops) {
+            for (let c of clients) {
+                c.handleRemoteOp(op);
+            }
+        }
+
+        const firstClientVal = clients[0].controller.tree.value();
+        for (let c of clients) {
+            expect(c.controller.tree.value()).toBe(firstClientVal);
+        }
+    }
+
 });
