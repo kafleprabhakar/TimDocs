@@ -87,7 +87,7 @@ async function testConcurrentOps (deleteOp=false) {
     const clients = [c1, c2, c3];
 
     let expectedStr = '';
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 1000; i++) {
         let ops = [];
         let changes = [];
         for (let j = 0; j < 2; j++) {
@@ -128,7 +128,7 @@ async function testConcurrentOps (deleteOp=false) {
                 secondOp.to.ch += 1;
             }
             // Following conditional fixes bug where 2 of the same deletes were getting processed as 2 separate deletes 
-            else  {
+            else if (firstOp.from.ch < secondOp.from.ch) {
                 secondOp.from.ch -= 1;
                 secondOp.to.ch -= 1;
             } 
@@ -136,7 +136,7 @@ async function testConcurrentOps (deleteOp=false) {
             //     doSecond = false;
             // }
         }
-        if (firstOp.origin == OpType.Delete && secondOp.origin == OpType.Delete && firstOp.from.ch == secondOp.from.ch) {
+        if (firstOp.origin == OpType.Delete && secondOp.origin == OpType.Delete && ops[0].wChar.id.isEqual(ops[1].wChar.id)) {
             doSecond = false;
             // expectedStr = operateOnExpected(expectedStr, secondOp);
         }

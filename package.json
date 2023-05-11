@@ -51,6 +51,7 @@
       "window": {
         "userAgent": "node.js"
       }
-    }
+    },
+    "testMatch": ["**/client/*.test.js"]
   }
 }
