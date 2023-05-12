@@ -52,17 +52,19 @@ export class Controller {
     /**
      * Handles insert operation from remote peer. Checks if the operation is executable before integrating
      * @param {CRDTOp} op
+     * @returns {number} position character is inserted at
      */
     ins(op) {
-        this.integrateInsert(op.wChar, op.wChar.idPrev, op.wChar.idNew);
+        return this.integrateInsert(op.wChar, op.wChar.idPrev, op.wChar.idNew);
     }
 
     /**
      * Handles delete operation from remote peer. Checks if the operation is executable before integrating
      * @param {CRDTOp} op 
+     * @returns {number} position character is deleted from
      */
     del(op) {
-        this.integrateDelete(op.wChar);
+        return this.integrateDelete(op.wChar);
     }
 
     // /**
@@ -87,7 +89,7 @@ export class Controller {
      */
     integrateInsert(wchar, wchar_prev_id, wchar_next_id) {
         if (this.tree.contains(wchar)) {
-            return;
+            return -1;
         }
         // find sequence 
         // insert at next position 
@@ -150,6 +152,7 @@ export class Controller {
     integrateDelete(wChar) {
         // set visible char to false 
         const p = this.tree.pos(wChar);
+        const pos = this.tree.pos(wChar, true);
         const delSucceed = this.tree.delete(p);
         // console.log("delSucceed:", delSucceed);
         // console.log("wChar:", wChar);
@@ -159,7 +162,7 @@ export class Controller {
         
         //wChar.visible = false // might have to do something more complicated 
 
-
+        return pos;
     }
 }
 

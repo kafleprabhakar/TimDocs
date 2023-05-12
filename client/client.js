@@ -3,13 +3,10 @@ import { Controller } from "./controller.js";
 import { OpType, CRDTOp, WId, WChar } from "./utils.js";
 import { Tree } from "./tree.js";
 
-// const { Messenger } = require("./messenger.js");
-// const { Controller } = require("./controller.js");
-
 export class Client {
     constructor(hasEditor, id, name, peers) {
         this.controller = new Controller(id); 
-        this.messenger = new Messenger(id, name, peers, this.handleRemoteMessage, this.listenToConnections);
+        this.messenger = new Messenger(id, name, peers, this.handleRemoteMessage, this.updatePeersUI);
         this.buffer = []
         // Initialize Editor
         this.hasEditor = hasEditor; // Will be useful if we decide to store everything in the server later on
@@ -54,7 +51,7 @@ export class Client {
         this.editor.on('change', (editor,obj) => this.handleEditorChange(obj));
         
         this.editor.on('cursorActivity', (editor) => {
-            // console.log("Cursor: ", editor.getCursor());
+            console.log("Cursor: ", editor.getCursor());
             this.cursorPosition = editor.getCursor().ch; // Assuming single line for the time being
             // console.log("Selection: ", editor.getSelection());
         });
@@ -106,6 +103,10 @@ export class Client {
         this.buffer.push(op);
     }
 
+    resetCursor = () => {
+        this.editor.setCursor({'line': 0, 'ch': this.cursorPosition});
+    }
+
     /**
      * Handles insert/delete operation from remote peer. Checks if the operation is executable before integrating
      * @param {CRDTOp} op
@@ -120,15 +121,24 @@ export class Client {
             const bufferCopy = []
             for (let op of this.buffer) {
                 if (this.isExecutable(op)) {
+                    let changeCursorPos = 0;
                     if (op.opType === OpType.Insert) {
-                        this.controller.ins(op); 
+                        const pos = this.controller.ins(op); 
                         this.controller.tree.versionNumber+=1;
+                        if (pos <= this.cursorPosition)
+                            changeCursorPos = 1;
                     } else if (op.opType === OpType.Delete) {
-                        this.controller.del(op);
+                        const pos = this.controller.del(op);
                         this.controller.tree.versionNumber+=1;
+                        if (pos <= this.cursorPosition)
+                            changeCursorPos = -1;
                     } 
-                    if (this.hasEditor) 
+                    if (this.hasEditor) {
+                        const newCursorPos = this.cursorPosition + changeCursorPos;
                         this.editor.setValue(this.controller.tree.value());
+                        this.cursorPosition = newCursorPos;
+                        this.resetCursor();
+                    }
                     appliedOp = true;
                 } else {
                     // put back in buffer pool
@@ -137,7 +147,6 @@ export class Client {
             }
             this.buffer = bufferCopy;
         }
-         
     }
 
     handleTreeRequest = (peer) => {
@@ -185,7 +194,7 @@ export class Client {
         }
     }
 
-    listenToConnections = () => {
+    updatePeersUI = () => {
         // console.log("Got signal for new client joining");
         if (this.hasEditor) {
             const peers = document.getElementById('peer-list');
