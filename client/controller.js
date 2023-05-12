@@ -54,13 +54,7 @@ export class Controller {
      * @param {CRDTOp} op
      */
     ins(op) {
-        op = CRDTOp.fromObject(op);
-        if (this.isExecutable(op)) {
-            this.integrateInsert(op.wChar, op.wChar.idPrev, op.wChar.idNew);
-        } else {
-            this.bufferPool.push(op);
-        }
-        
+        this.integrateInsert(op.wChar, op.wChar.idPrev, op.wChar.idNew);
     }
 
     /**
@@ -68,26 +62,21 @@ export class Controller {
      * @param {CRDTOp} op 
      */
     del(op) {
-        op = CRDTOp.fromObject(op);
-        if (this.isExecutable(op)) {
-            this.integrateDelete(op.wChar);
-        } else {
-            this.bufferPool.push(op);
-        }
+        this.integrateDelete(op.wChar);
     }
 
-    /**
-     * Checks if the pre-conditions of the operations have been satisfied
-     * @param {CRDTOp} op the CRDT operation to check 
-     */
-    isExecutable(op) {
-        if (op.opType == OpType.Delete) {
-            return this.tree.contains(op.wChar);
-        } else {
-            return (op.wChar.idPrev === null || this.tree.contains(this.tree.find(op.wChar.idPrev, false)))
-                    && (op.wChar.idNew === null || this.tree.contains(this.tree.find(op.wChar.idNew, false)));
-        }
-    }
+    // /**
+    //  * Checks if the pre-conditions of the operations have been satisfied
+    //  * @param {CRDTOp} op the CRDT operation to check 
+    //  */
+    // isExecutable(op) {
+    //     if (op.opType == OpType.Delete) {
+    //         return this.tree.contains(op.wChar);
+    //     } else {
+    //         return (op.wChar.idPrev === null || this.tree.contains(this.tree.find(op.wChar.idPrev, false)))
+    //                 && (op.wChar.idNew === null || this.tree.contains(this.tree.find(op.wChar.idNew, false)));
+    //     }
+    // }
     
     /**
      * Called by the messenger when it receives a insert request from a peer. Integrates the character in tree

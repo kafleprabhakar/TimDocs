@@ -15,13 +15,10 @@ export class Client {
         this.hasEditor = hasEditor; // Will be useful if we decide to store everything in the server later on
         this.cursorPosition = 0;
         if (hasEditor) 
-            this.initEditor()
+            this.initEditor();
         else
             this.editor = null;
-        this.mapHeartbeats = {};  
-
-        
-        
+        this.mapHeartbeats = {};
     }
 
     initEditor() {
@@ -47,6 +44,10 @@ export class Client {
         const jsonData = await response.json();
         return new Client(hasEditor, jsonData.me, name, jsonData.peers);
     } 
+
+    destroy = () => {
+        this.messenger.destroy();
+    }
 
     bindKeyboardActions() {
         
@@ -91,7 +92,7 @@ export class Client {
             return this.controller.tree.contains(this.controller.tree.find(c.idPrev)) && 
             this.controller.tree.contains(this.controller.tree.find(c.idNew))
         } else {
-            return true
+            return true;
         }
     }
 
@@ -147,8 +148,7 @@ export class Client {
     handleHeartbeat = (peer) => {
         // console.log("handle heartbeat");
         const ackOp = new CRDTOp(OpType.Ack, null, this.controller.tree);
-        this.messenger.sendAck(ackOp);  
-
+        this.messenger.sendAck(peer, ackOp);
     }
 
     handleAck = (peer, versionNum) => {
@@ -163,7 +163,6 @@ export class Client {
         }
     }
     
-
     integrateTree = (op) => {
         this.controller.tree = Tree.fromObject(op.tree);
         if (this.hasEditor)
