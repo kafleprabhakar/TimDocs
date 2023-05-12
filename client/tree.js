@@ -203,40 +203,6 @@ export class Tree {
     }
 
     /**
-     * Gets the previous WChar (does not have to be visible)
-     * @param {WChar} c 
-     * @returns Previous WChar. If none exist, returns null.
-     */
-    CP(c) {
-        let tree = [...this.preOrderTraversal()];
-        for (let i = 0; i < tree.length; i++) {
-            if (tree[i].wChar === c) {
-                if (i > 0) {
-                    return tree[i-1];
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Gets the next WChar (does not have to be visible)
-     * @param {WChar} c 
-     * @returns Next WChar. If none exist, returns null.
-     */
-    CN(c) {
-        let tree = [...this.preOrderTraversal()];
-        for (let i = 0; i < tree.length; i++) {
-            if (tree[i].wChar === c) {
-                if (i+1 < length(tree)) {
-                    return tree[i+1];
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
      * Returns string of visible WChars in linear order
      */
     value() {

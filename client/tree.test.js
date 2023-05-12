@@ -183,3 +183,10 @@ test('Find, result = null', () => {
     const testChar = testTree.find(new WId(1, 10));
     expect(testChar).toBe(null);
 })
+
+test('FindNode, result = null', () => {
+    const testTree = createTestTree(5, [1,2]);
+    expect(testTree.value()).toBe("ace");
+    const testNode = testTree.findNode(new WId(1, 10));
+    expect(testNode).toBe(null);
+})
