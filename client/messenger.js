@@ -36,6 +36,15 @@ export class Messenger {
         this.handleFunc = handleFunc;
         this.signalConnection = signalConnection;
         this.heartbeat();
+        this.heartbeatThread = setInterval(this.heartbeat,5000);
+    }
+
+    destroy = () => {
+        clearInterval(this.heartbeatThread);
+        this.me.disconnect();
+        for (let peer in this.connections) {
+            this.connections[peer].conn.close();
+        }
     }
 
     establishConnection(peer) {
@@ -180,7 +189,7 @@ export class Messenger {
             }
 
         //}
-        setInterval(this.heartbeat,5000);
+        
         
         
         

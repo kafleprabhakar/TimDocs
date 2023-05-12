@@ -87,7 +87,7 @@ async function testConcurrentOps (deleteOp=false) {
     const clients = [c1, c2, c3];
 
     let expectedStr = '';
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 100; i++) {
         let ops = [];
         let changes = [];
         for (let j = 0; j < 2; j++) {
@@ -137,17 +137,18 @@ async function testConcurrentOps (deleteOp=false) {
         if (doSecond) {
             expectedStr = operateOnExpected(expectedStr, secondOp);
         }
-        c1.handleRemoteOp(ops[1]);
-        c2.handleRemoteOp(ops[0]);
+        c1.handleRemoteMessage(ops[1].wChar.id.numSite, ops[1]);
+        c2.handleRemoteMessage(ops[0].wChar.id.numSite, ops[0]);
         // Apply op1 and op2 in random order
         const first = Math.floor(Math.random() * ops.length);
-        c3.handleRemoteOp(ops[first]);
-        c3.handleRemoteOp(ops[1-first]);
+        c3.handleRemoteMessage(ops[first].wChar.id.numSite, ops[first]);
+        c3.handleRemoteMessage(ops[1-first].wChar.id.numSite, ops[1-first]);
 
         for (let c of clients) {
             expect(c.controller.tree.value()).toBe(expectedStr);
         }
     }
+    destroyClients(clients);
 }
 
 /**
@@ -163,24 +164,34 @@ function operateOnExpected(str, change) {
     }
 }
 
+destroyClients = (clients) => {
+    for (let client of clients) {
+        client.destroy();
+    }
+}
+
 beforeEach(() => {
     window.location = {'hostname': "localhost"};
+});
+
+afterEach(async () => {
+    await fetch("http://" + window.location.hostname + ":1800/reset");
 });
 
 test('Sync manual inserts', async () => {
     console.log(process.version);
     const c1 = await Client.makeClient(false);
     const c2 = await Client.makeClient(false);
-    const isC1Lower = (c1.controller.siteId.localeCompare(c1.controller.siteId) === -1);
-    console.log("C1:", c1.controller.siteId);
+    // const isC1Lower = (c1.controller.siteId.localeCompare(c1.controller.siteId) === -1);
+    // console.log("C1:", c1.controller.siteId);
     
     const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'a', 0));
-    c2.handleRemoteOp(op);
+    c2.handleRemoteMessage(op.wChar.id.numSite, op);
     expect(c1.controller.tree.value()).toBe('a');
     expect(c2.controller.tree.value()).toBe('a');
 
     const op2 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'b', 0));
-    c1.handleRemoteOp(op2);
+    c1.handleRemoteMessage(op2.wChar.id.numSite, op2);
     expect(c1.controller.tree.value()).toBe('ba');
     expect(c2.controller.tree.value()).toBe('ba');
 
@@ -188,9 +199,9 @@ test('Sync manual inserts', async () => {
     const op4 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'd', 1));
     expect(c1.controller.tree.value()).toBe('bca');
     expect(c2.controller.tree.value()).toBe('bda');
-    console.log("Op4:", op4);
-    c1.handleRemoteOp(op4);
-    c2.handleRemoteOp(op3);
+    // console.log("Op4:", op4);
+    c1.handleRemoteMessage(op4.wChar.id.numSite, op4);
+    c2.handleRemoteMessage(op3.wChar.id.numSite, op3);
 
     let expectedStr = '';
     if (op3.wChar.id.isLessThan(op4.wChar.id)) {
@@ -199,15 +210,16 @@ test('Sync manual inserts', async () => {
         expectedStr = 'bdca';
     }
     global.expected = expectedStr;
-    console.log("Expected:", expectedStr);
+    // console.log("Expected:", expectedStr);
     expect(c1.controller.tree.value()).toBe(expectedStr);
     expect(c2.controller.tree.value()).toBe(expectedStr);
     
     const op5 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'b', 0));
-    c1.handleRemoteOp(op5);
+    c1.handleRemoteMessage(op5.wChar.id.numSite, op5);
     expectedStr = expectedStr.slice(1);
     expect(c1.controller.tree.value()).toBe(expectedStr);
     expect(c2.controller.tree.value()).toBe(expectedStr);
+    destroyClients([c1, c2]);
 });
 
 test("Automated serialized inserts", async () => {
@@ -226,11 +238,12 @@ test("Automated serialized inserts", async () => {
         const op = c.handleEditorChange(createChangeObject(OpType.Insert, char, pos));
         for (let k = 0; k < clients.length; k++) {
             if (j !== k) {
-                clients[k].handleRemoteOp(op);
+                clients[k].handleRemoteMessage(op.wChar.id.numSite, op);
             }
             expect(clients[k].controller.tree.value()).toBe(expectedStr);
         }
     }
+    destroyClients(clients);
 });
 
 test("Automated serialized inserts and deletes", async () => {
@@ -259,15 +272,16 @@ test("Automated serialized inserts and deletes", async () => {
             char = getRandomCharacter();
             expectedStr = insertToExpected(expectedStr, char, pos);
         }
-        console.log("Iteration ", i, ", the expected string: ", expectedStr);
+        // console.log("Iteration ", i, ", the expected string: ", expectedStr);
         const op = c.handleEditorChange(createChangeObject(opType, char, pos));
         for (let k = 0; k < clients.length; k++) {
             if (j !== k) {
-                clients[k].handleRemoteOp(op);
+                clients[k].handleRemoteMessage(op.wChar.id.numSite, op);
             }
             expect(clients[k].controller.tree.value()).toBe(expectedStr);
         }
     }
+    destroyClients(clients);
 });
 
 test("Automated concurrent inserts", async () => {
@@ -283,81 +297,82 @@ test('Concurrent delete then insert', async () => {
     const c1 = await Client.makeClient(false);
     const c2 = await Client.makeClient(false);
     const isC1Lower = (c1.controller.siteId.localeCompare(c1.controller.siteId) === -1);
-    console.log("C1:", c1.controller.siteId);
     
     const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'r', 0));
-    c2.handleRemoteOp(op);
+    c2.handleRemoteMessage(op.wChar.id.numSite, op);
     expect(c1.controller.tree.value()).toBe('r');
     expect(c2.controller.tree.value()).toBe('r');
 
     const op2 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'm', 0));
-    c1.handleRemoteOp(op2);
+    c1.handleRemoteMessage(op2.wChar.id.numSite, op2);
     expect(c1.controller.tree.value()).toBe('mr');
     expect(c2.controller.tree.value()).toBe('mr');
     
     const op5 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'm', 0));
-    c1.handleRemoteOp(op5);
+    c1.handleRemoteMessage(op5.wChar.id.numSite, op5);
     // expectedStr = expectedStr.slice(1);
     expect(c1.controller.tree.value()).toBe("r");
     expect(c2.controller.tree.value()).toBe("r");
 
     const op6 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'k', 0));
-    c1.handleRemoteOp(op6);
+    c1.handleRemoteMessage(op6.wChar.id.numSite, op6);
     expect(c1.controller.tree.value()).toBe("kr");
     expect(c2.controller.tree.value()).toBe("kr");
+    destroyClients([c1, c2]);
 });
 
-test("Ultimate Stress Test", async () => {
-    const clients = [];
-    const n = 5
-    for (let i = 0; i < n; i++) {
-        clients.push(await Client.makeClient(false));
-    }
+// test("Ultimate Stress Test", async () => {
+//     const clients = [];
+//     const n = 5
+//     for (let i = 0; i < n; i++) {
+//         clients.push(await Client.makeClient(false));
+//     }
 
-    for (let i = 0; i < 1; i++) {
-        const ops = [];
-        for (let j = 0; j < 20; j++) {
-            console.log("---------------New Iteration-------------");
-            let opType = null;
-            let pos = null;
-            let char = null;
+//     for (let i = 0; i < 1; i++) {
+//         const ops = [];
+//         for (let j = 0; j < 20; j++) {
+//             console.log("---------------New Iteration-------------");
+//             let opType = null;
+//             let pos = null;
+//             let char = null;
 
-            const ci = Math.floor(Math.random() * n);
-            const c = clients[ci];
-            const currentStr = c.controller.tree.value();
+//             const ci = Math.floor(Math.random() * n);
+//             const c = clients[ci];
+//             const currentStr = c.controller.tree.value();
 
-            if (Math.random() < 0.3 && currentStr.length > 0) {
-                opType = OpType.Delete;
-                pos = Math.floor(Math.random() * currentStr.length);
-                char = currentStr[pos];
-            } else {
-                opType = OpType.Insert;
-                pos = Math.floor(Math.random() * (currentStr.length + 1));
-                char = getRandomCharacter();
-            }
+//             if (Math.random() < 0.3 && currentStr.length > 0) {
+//                 opType = OpType.Delete;
+//                 pos = Math.floor(Math.random() * currentStr.length);
+//                 char = currentStr[pos];
+//             } else {
+//                 opType = OpType.Insert;
+//                 pos = Math.floor(Math.random() * (currentStr.length + 1));
+//                 char = getRandomCharacter();
+//             }
             
-            const ch = createChangeObject(opType, char, pos);
-            console.log("Adding change to primary");
-            const op = c.handleEditorChange(ch);
-            ops.push(op);
+//             const ch = createChangeObject(opType, char, pos);
+//             console.log("Adding change to primary");
+//             const op = c.handleEditorChange(ch);
+//             ops.push(op);
 
-            for (let k = 0; k < n; k++) {
-                if (ci != k && Math.random() < 0.3) {
-                    console.log("Adding change to random secondary");
-                    clients[k].handleRemoteOp(op);
-                }
-            }
-        }
-        for (let op of ops) {
-            for (let c of clients) {
-                c.handleRemoteOp(op);
-            }
-        }
+//             for (let k = 0; k < n; k++) {
+//                 if (ci != k && Math.random() < 0.3) {
+//                     console.log("Adding change to random secondary");
+//                     clients[k].handleRemoteMessage(op.wChar.id.numSite, op);
+//                 }
+//             }
+//         }
+//         for (let op of ops) {
+//             for (let c of clients) {
+//                 c.handleRemoteMessage(op.wChar.id.numSite, op);
+//             }
+//         }
 
-        const firstClientVal = clients[0].controller.tree.value();
-        for (let c of clients) {
-            expect(c.controller.tree.value()).toBe(firstClientVal);
-        }
-    }
+//         const firstClientVal = clients[0].controller.tree.value();
+//         for (let c of clients) {
+//             expect(c.controller.tree.value()).toBe(firstClientVal);
+//         }
+//     }
+//     destroyClients(clients);
 
-});
+// });

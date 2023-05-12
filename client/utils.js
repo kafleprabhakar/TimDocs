@@ -72,13 +72,6 @@ export class WChar {
         wc.idNew = WId.fromObject(obj.idNew);
         return wc;
     }
-
-    // Returns the message of this CRDT Operation to be sent to peers
-    toMessage() {
-        return {
-
-        }
-    }
 }
 
 export const OpType = {
