@@ -168,3 +168,18 @@ test('Subsequence, c = non-null, d = non-null', () => {
     const subseq = testTree.subseq(c, d);
     expect(subseq.length).toBe(0);
 })
+
+test('Find, result = non-null', () => {
+    const testTree = createTestTree(5, [1,2]);
+    expect(testTree.value()).toBe("ace");
+    const testChar = testTree.find(new WId(1, 1));
+    expect(testChar.c).toBe('b');
+    expect(testChar).toBeInstanceOf(WChar);
+})
+
+test('Find, result = null', () => {
+    const testTree = createTestTree(5, [1,2]);
+    expect(testTree.value()).toBe("ace");
+    const testChar = testTree.find(new WId(1, 10));
+    expect(testChar).toBe(null);
+})

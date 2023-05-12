@@ -87,7 +87,6 @@ export class Client {
         if (op.opType === OpType.Delete){
             return this.controller.tree.contains(c)
         } else if (op.opType === OpType.Insert) { 
-            console.log("id prev", op); 
             return this.controller.tree.contains(this.controller.tree.find(c.idPrev)) && 
             this.controller.tree.contains(this.controller.tree.find(c.idNew))
         } else {
