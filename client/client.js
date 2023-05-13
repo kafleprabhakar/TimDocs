@@ -54,6 +54,13 @@ export class Client {
             this.cursorPosition = editor.getCursor().ch; // Assuming single line for the time being
             // console.log("Selection: ", editor.getSelection());
         });
+
+        this.editor.on("beforeChange", function(instance, change) {
+            var newtext = change.text.join("").replace(/\n/g, " "); // remove ALL \n !
+            change.update(change.from, change.to, [newtext]);
+            console.log("Changed text to not have newline");
+            return true;
+        });
     }
 
     /**
