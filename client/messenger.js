@@ -41,10 +41,10 @@ export class Messenger {
 
     destroy = () => {
         clearInterval(this.heartbeatThread);
-        this.me.disconnect();
         for (let peer in this.connections) {
             this.connections[peer].conn.close();
         }
+        this.me.disconnect();
     }
 
     establishConnection(peer) {
