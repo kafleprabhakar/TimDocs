@@ -22,7 +22,6 @@ export class Client {
         const editor = document.getElementById("editor");
         this.editor = CodeMirror.fromTextArea(editor, {
             mode: "xml",
-            theme: "dracula",
             lineNumbers: false,
             lineWrapping: true,
         });
@@ -57,20 +56,29 @@ export class Client {
         });
     }
 
-    // Adds the character c to the document tree and broadcasts to other peers
+    /**
+     * Adds the character c to the document tree and broadcasts to other peers
+     * @param {Object} change 
+     * @returns {CRDTOp[]} lest of CRDT operations performed on the tree
+     */
     handleEditorChange(change) {
-        let op = null;
-        if (change.origin == "+input") {
-            op = this.controller.generateInsert(change.text[0], change.from.ch);
-            this.controller.tree.versionNumber+=1;
-        } else if (change.origin == "+delete") { // This could be a paste too. But for the time being only handling insert and delete
-            op = this.controller.generateDelete(change.from.ch);
-            this.controller.tree.versionNumber+=1;
+        console.log("Change: ", change);
+        let ops = [];
+        if (change.origin !== OpType.Insert && change.origin !== OpType.Delete && change.origin !== OpType.Paste)
+            return ops;
+        const start = change.from.ch;
+        for (let i = 0; i < change.removed[0].length; i++) {
+            ops.push(this.controller.generateDelete(start));
         }
-        // send vector clock 
-        this.messenger.broadcast(op);
+        for (let i = 0; i < change.text[0].length; i++) {
+            ops.push(this.controller.generateInsert(change.text[0][i], start + i));
+        }
+        this.controller.tree.versionNumber += 1;
+        for (let op of ops) {
+            this.messenger.broadcast(op);
+        }
         // Call broadcast function in messenger to broadcast above CRDT operation `op`
-        return op; // For the test function
+        return ops; // For the test function
     }
 
 

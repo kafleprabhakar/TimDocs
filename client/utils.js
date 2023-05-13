@@ -77,6 +77,7 @@ export class WChar {
 export const OpType = {
     Insert: "+input",
     Delete: "+delete",
+    Paste: "paste",
     GetDoc: "getDoc",
     SendDoc: "sendDoc",
     Ack: "acknowledge",

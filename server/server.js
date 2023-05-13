@@ -22,6 +22,7 @@ app.get('/', (req, res) => {
 app.get('/reset', (req, res) => {
   peers = {};
   console.log("Reset list of peers");
+  res.end();
 });
 
 

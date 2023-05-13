@@ -106,7 +106,7 @@ async function testConcurrentOps (deleteOp=false) {
             }
             
             const ch = createChangeObject(opType, char, pos);
-            const op = clients[j].handleEditorChange(ch);
+            const op = clients[j].handleEditorChange(ch)[0];
             changes.push(ch);
             ops.push(op);
         }
@@ -185,18 +185,18 @@ test('Sync manual inserts', async () => {
     // const isC1Lower = (c1.controller.siteId.localeCompare(c1.controller.siteId) === -1);
     // console.log("C1:", c1.controller.siteId);
     
-    const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'a', 0));
+    const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'a', 0))[0];
     c2.handleRemoteMessage(op.wChar.id.numSite, op);
     expect(c1.controller.tree.value()).toBe('a');
     expect(c2.controller.tree.value()).toBe('a');
 
-    const op2 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'b', 0));
+    const op2 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'b', 0))[0];
     c1.handleRemoteMessage(op2.wChar.id.numSite, op2);
     expect(c1.controller.tree.value()).toBe('ba');
     expect(c2.controller.tree.value()).toBe('ba');
 
-    const op3 = c1.handleEditorChange(createChangeObject(OpType.Insert, 'c', 1));
-    const op4 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'd', 1));
+    const op3 = c1.handleEditorChange(createChangeObject(OpType.Insert, 'c', 1))[0];
+    const op4 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'd', 1))[0];
     expect(c1.controller.tree.value()).toBe('bca');
     expect(c2.controller.tree.value()).toBe('bda');
     // console.log("Op4:", op4);
@@ -214,7 +214,7 @@ test('Sync manual inserts', async () => {
     expect(c1.controller.tree.value()).toBe(expectedStr);
     expect(c2.controller.tree.value()).toBe(expectedStr);
     
-    const op5 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'b', 0));
+    const op5 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'b', 0))[0];
     c1.handleRemoteMessage(op5.wChar.id.numSite, op5);
     expectedStr = expectedStr.slice(1);
     expect(c1.controller.tree.value()).toBe(expectedStr);
@@ -235,7 +235,7 @@ test("Automated serialized inserts", async () => {
         const char = getRandomCharacter();
         const pos = getRandomPos(expectedStr.length);
         expectedStr = insertToExpected(expectedStr, char, pos);
-        const op = c.handleEditorChange(createChangeObject(OpType.Insert, char, pos));
+        const op = c.handleEditorChange(createChangeObject(OpType.Insert, char, pos))[0];
         for (let k = 0; k < clients.length; k++) {
             if (j !== k) {
                 clients[k].handleRemoteMessage(op.wChar.id.numSite, op);
@@ -273,7 +273,7 @@ test("Automated serialized inserts and deletes", async () => {
             expectedStr = insertToExpected(expectedStr, char, pos);
         }
         // console.log("Iteration ", i, ", the expected string: ", expectedStr);
-        const op = c.handleEditorChange(createChangeObject(opType, char, pos));
+        const op = c.handleEditorChange(createChangeObject(opType, char, pos))[0];
         for (let k = 0; k < clients.length; k++) {
             if (j !== k) {
                 clients[k].handleRemoteMessage(op.wChar.id.numSite, op);
@@ -298,23 +298,23 @@ test('Concurrent delete then insert', async () => {
     const c2 = await Client.makeClient(false);
     const isC1Lower = (c1.controller.siteId.localeCompare(c1.controller.siteId) === -1);
     
-    const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'r', 0));
+    const op = c1.handleEditorChange(createChangeObject(OpType.Insert, 'r', 0))[0];
     c2.handleRemoteMessage(op.wChar.id.numSite, op);
     expect(c1.controller.tree.value()).toBe('r');
     expect(c2.controller.tree.value()).toBe('r');
 
-    const op2 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'm', 0));
+    const op2 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'm', 0))[0];
     c1.handleRemoteMessage(op2.wChar.id.numSite, op2);
     expect(c1.controller.tree.value()).toBe('mr');
     expect(c2.controller.tree.value()).toBe('mr');
     
-    const op5 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'm', 0));
+    const op5 = c2.handleEditorChange(createChangeObject(OpType.Delete, 'm', 0))[0];
     c1.handleRemoteMessage(op5.wChar.id.numSite, op5);
     // expectedStr = expectedStr.slice(1);
     expect(c1.controller.tree.value()).toBe("r");
     expect(c2.controller.tree.value()).toBe("r");
 
-    const op6 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'k', 0));
+    const op6 = c2.handleEditorChange(createChangeObject(OpType.Insert, 'k', 0))[0];
     c1.handleRemoteMessage(op6.wChar.id.numSite, op6);
     expect(c1.controller.tree.value()).toBe("kr");
     expect(c2.controller.tree.value()).toBe("kr");
