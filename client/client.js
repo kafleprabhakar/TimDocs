@@ -11,6 +11,7 @@ export class Client {
         // Initialize Editor
         this.hasEditor = hasEditor; // Will be useful if we decide to store everything in the server later on
         this.cursorPosition = 0;
+        this.peerCursors = {}
         if (hasEditor) 
             this.initEditor();
         else
@@ -52,6 +53,8 @@ export class Client {
         this.editor.on('cursorActivity', (editor) => {
             console.log("Cursor: ", editor.getCursor());
             this.cursorPosition = editor.getCursor().ch; // Assuming single line for the time being
+            const op = new CRDTOp(OpType.CursorPos, null, null, {'line': editor.getCursor().line, 'ch': editor.getCursor().ch});
+            this.messenger.broadcast(op);
             // console.log("Selection: ", editor.getSelection());
         });
 
@@ -127,7 +130,6 @@ export class Client {
      * @param {CRDTOp} op
      */
     handleRemoteOp = (op) => {
-
         this.addBuffer(op);
 
         let appliedOp = true;
@@ -204,6 +206,17 @@ export class Client {
             this.handleTreeRequest(peer);
         } else if (op.opType == OpType.SendDoc) {
             this.integrateTree(op);
+        } else if (op.opType == OpType.CursorPos) {
+            console.log("Remote Cursor pos: ", op);
+            if (peer in this.peerCursors) {
+                this.peerCursors[peer].clear();
+            }
+            const cursorNode = document.getElementById('cursor-template').content.cloneNode(true);
+            console.log("cursorNode:", cursorNode.className);
+            // cursorNode.style['background'] = this.messenger.connections[peer].color;
+            this.peerCursors[peer] = this.editor.setBookmark(op.cursorPos, {'widget': cursorNode});
+            this.peerCursors[peer].widgetNode.style['background'] = this.messenger.connections[peer].color;
+            console.log("cursor: ", this.peerCursors[peer]);
         } else if (op.opType == OpType.Insert || op.opType == OpType.Delete) {
             this.handleRemoteOp(op);
         }

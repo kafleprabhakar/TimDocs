@@ -81,7 +81,8 @@ export const OpType = {
     GetDoc: "getDoc",
     SendDoc: "sendDoc",
     Ack: "acknowledge",
-    Heartbeat: "heartbeat"
+    Heartbeat: "heartbeat",
+    CursorPos: "cursorPos"
 }
 
 export class CRDTOp {
@@ -91,10 +92,11 @@ export class CRDTOp {
      * @param {WChar} wChar 
      * @param {TreeNode} tree 
      */
-    constructor(opType, wChar, tree = null) {
+    constructor(opType, wChar, tree = null, cursorPos = null) {
         this.opType = opType;
         this.wChar = wChar;
         this.tree = tree;
+        this.cursorPos = cursorPos;
     }
 
     static fromObject(obj) {
@@ -103,6 +105,7 @@ export class CRDTOp {
         op.opType = obj.opType;
         op.wChar = WChar.fromObject(obj.wChar);
         op.tree = Tree.fromObject(obj.tree);
+        op.cursorPos = obj.cursorPos;
         return op;
     }
 }

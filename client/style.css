@@ -13,6 +13,27 @@ main#main {
     border-radius: 8px;
 }
 
+.CodeMirror-widget {
+    display: inline-flex;
+    position: relative;
+}
+
+.peer-cursor {
+    width: 1.5px;
+    height: 24px;
+    position: absolute;
+    bottom: -6px;
+    display: inline-block;
+    background: inherit;
+}
+.cursor-head {
+    width: 4px;
+    height: 4px;
+    display: block;
+    background: inherit;
+
+}
+
 #secondary h2 {
     font-size: 1.5em;
     text-decoration: underline;
