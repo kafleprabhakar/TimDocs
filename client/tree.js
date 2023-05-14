@@ -119,11 +119,11 @@ export class Tree {
         // First insertion into tree becomes the root.
         if (tree.length == 0) {
             this.root = new TreeNode(c1);
-            return true;
+            return 0;
         }
 
         if (p > tree.length) {
-            return false;
+            return -1;
         }
 
         // Case 1: Insert at the end of the tree. 
@@ -132,7 +132,7 @@ export class Tree {
         if (p == tree.length) {
             t2 = tree[tree.length-1];
             t2.children.push(new TreeNode(c1, t2.wChar.id));
-            return true;
+            return this.pos(c1, true);
         }
 
         // Case 2: Insert anywhere else. Swap such that:
@@ -163,7 +163,7 @@ export class Tree {
             child.parent = t1.wChar.id;
         }
 
-        return true;
+        return this.pos(c1, true);
     }
 
     /**
