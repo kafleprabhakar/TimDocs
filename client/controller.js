@@ -88,7 +88,7 @@ export class Controller {
      * @param {WChar} wchar_next 
      */
     integrateInsert(wchar, wchar_prev_id, wchar_next_id) {
-        if (this.tree.contains(wchar)) {
+        if (this.tree.contains(wchar.id)) {
             return -1;
         }
         // find sequence 

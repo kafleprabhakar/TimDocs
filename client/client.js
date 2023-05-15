@@ -101,11 +101,11 @@ export class Client {
         let c = op.wChar
         
         if (op.opType === OpType.Delete){
-            return this.controller.tree.contains(c)
+            return this.controller.tree.contains(c.id)
         } else if (op.opType === OpType.Insert) { 
             // console.log("id prev", op); 
-            return this.controller.tree.contains(this.controller.tree.find(c.idPrev)) && 
-            this.controller.tree.contains(this.controller.tree.find(c.idNew))
+            return this.controller.tree.contains(c.idPrev) && 
+            this.controller.tree.contains(c.idNew)
         } else {
             return true;
         }

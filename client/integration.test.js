@@ -321,58 +321,59 @@ test('Concurrent delete then insert', async () => {
     destroyClients([c1, c2]);
 });
 
-// test("Ultimate Stress Test", async () => {
-//     const clients = [];
-//     const n = 5
-//     for (let i = 0; i < n; i++) {
-//         clients.push(await Client.makeClient(false));
-//     }
+test("Ultimate Stress Test", async () => {
+    const clients = [];
+    const n = 5
+    for (let i = 0; i < n; i++) {
+        clients.push(await Client.makeClient(false));
+    }
 
-//     for (let i = 0; i < 1; i++) {
-//         const ops = [];
-//         for (let j = 0; j < 20; j++) {
-//             console.log("---------------New Iteration-------------");
-//             let opType = null;
-//             let pos = null;
-//             let char = null;
+    for (let i = 0; i < 30; i++) {
+        const ops = [];
+        for (let j = 0; j < 20; j++) {
+            console.log("---------------New Iteration-------------");
+            let opType = null;
+            let pos = null;
+            let char = null;
 
-//             const ci = Math.floor(Math.random() * n);
-//             const c = clients[ci];
-//             const currentStr = c.controller.tree.value();
+            const ci = Math.floor(Math.random() * n);
+            const c = clients[ci];
+            const currentStr = c.controller.tree.value();
 
-//             if (Math.random() < 0.3 && currentStr.length > 0) {
-//                 opType = OpType.Delete;
-//                 pos = Math.floor(Math.random() * currentStr.length);
-//                 char = currentStr[pos];
-//             } else {
-//                 opType = OpType.Insert;
-//                 pos = Math.floor(Math.random() * (currentStr.length + 1));
-//                 char = getRandomCharacter();
-//             }
+            if (Math.random() < 0.3 && currentStr.length > 0) {
+                opType = OpType.Delete;
+                pos = Math.floor(Math.random() * currentStr.length);
+                char = currentStr[pos];
+            } else {
+                opType = OpType.Insert;
+                pos = Math.floor(Math.random() * (currentStr.length + 1));
+                char = getRandomCharacter();
+            }
             
-//             const ch = createChangeObject(opType, char, pos);
-//             console.log("Adding change to primary");
-//             const op = c.handleEditorChange(ch);
-//             ops.push(op);
+            const ch = createChangeObject(opType, char, pos);
+            console.log("Adding change to primary");
+            const op = c.handleEditorChange(ch)[0];
+            ops.push(op);
 
-//             for (let k = 0; k < n; k++) {
-//                 if (ci != k && Math.random() < 0.3) {
-//                     console.log("Adding change to random secondary");
-//                     clients[k].handleRemoteMessage(op.wChar.id.numSite, op);
-//                 }
-//             }
-//         }
-//         for (let op of ops) {
-//             for (let c of clients) {
-//                 c.handleRemoteMessage(op.wChar.id.numSite, op);
-//             }
-//         }
+            for (let k = 0; k < n; k++) {
+                if (ci != k && Math.random() < 0.3) {
+                    console.log("Adding change to random secondary");
+                    console.log("op", op);
+                    clients[k].handleRemoteMessage(op.wChar.id.numSite, op);
+                }
+            }
+        }
+        for (let op of ops) {
+            for (let c of clients) {
+                c.handleRemoteMessage(op.wChar.id.numSite, op);
+            }
+        }
 
-//         const firstClientVal = clients[0].controller.tree.value();
-//         for (let c of clients) {
-//             expect(c.controller.tree.value()).toBe(firstClientVal);
-//         }
-//     }
-//     destroyClients(clients);
+        const firstClientVal = clients[0].controller.tree.value();
+        for (let c of clients) {
+            expect(c.controller.tree.value()).toBe(firstClientVal);
+        }
+    }
+    destroyClients(clients);
 
-// });
+});

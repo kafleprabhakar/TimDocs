@@ -192,14 +192,20 @@ export class Tree {
 
     /**
      * Returns true if c can be found
-     * @param {WChar} c 
+     * @param {WId} id
      * @returns 
      */
-    contains(c) {
-        if (this.pos(c, false) === -1) {
-            return false;
+    contains(id) {
+        const tree = [...this.preOrderTraversal()];
+        if (id == null) {
+            return true;
         }
-        return true;
+        for (let node of tree) {
+            if (node.wChar.id.isEqual(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
