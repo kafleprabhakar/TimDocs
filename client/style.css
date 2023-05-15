@@ -5,6 +5,10 @@ main#main {
     min-height: 100vh;
 }
 
+img#site-logo {
+    max-height: 44px;
+}
+
 .CodeMirror {
     font-family: 'Times New Roman';
     height: calc(100vh - 90px);
