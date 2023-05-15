@@ -235,6 +235,10 @@ export class Client {
                 thisPeer.querySelector(".user-icon").style["background-color"] = this.messenger.connections[peer].color;
                 peers.appendChild(thisPeer);
             }
+            for (let peer in this.peerCursors) {
+                if (!(peer in this.messenger.connections))
+                    this.peerCursors[peer].clear();
+            }
         }
     }
 }
