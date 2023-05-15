@@ -2,10 +2,9 @@ import { Controller } from './controller.js';
 import { WId, WChar, CRDTOp, OpType } from './utils.js';
 
 function getRandomColor() {
-    const colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', 
-                    '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe',
-                    '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000',
-                    '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080']
+    const colors = ['#5154aa', '#bf6629', '#d81562', '#11829e', '#a90d11', 
+                    '#63024a', '#10911f', '#fd8e47', '#0852e9', '#6a9f7a',
+                    '#673c63', '#40262f', '#e93d31', '#223c54', '#4f8d95'];
     return colors[Math.floor(Math.random() * colors.length)];
 }
 // const {CRDTOp, OpType} = require('./utils.js');
