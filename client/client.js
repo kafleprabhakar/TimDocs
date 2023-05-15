@@ -140,21 +140,19 @@ export class Client {
                 if (this.isExecutable(op)) {
                     let changeCursorPos = 0;
                     if (op.opType === OpType.Insert) {
-                        const pos = this.controller.ins(op); 
+                        const pos = this.controller.ins(op);
                         this.controller.tree.versionNumber+=1;
+                        if (this.hasEditor)
+                            this.editor.replaceRange(op.wChar.c, {'line': 0, 'ch': pos}, {'line': 0, 'ch': pos});
                         if (pos <= this.cursorPosition)
                             changeCursorPos = 1;
                     } else if (op.opType === OpType.Delete) {
                         const pos = this.controller.del(op);
                         this.controller.tree.versionNumber+=1;
+                        if (this.hasEditor)
+                            this.editor.replaceRange('', {'line': 0, 'ch': pos}, {'line': 0, 'ch': pos + 1});
                         if (pos <= this.cursorPosition)
                             changeCursorPos = -1;
-                    } 
-                    if (this.hasEditor) {
-                        const newCursorPos = this.cursorPosition + changeCursorPos;
-                        this.editor.setValue(this.controller.tree.value());
-                        this.cursorPosition = newCursorPos;
-                        this.resetCursor();
                     }
                     appliedOp = true;
                 } else {
@@ -216,7 +214,7 @@ export class Client {
             // cursorNode.style['background'] = this.messenger.connections[peer].color;
             this.peerCursors[peer] = this.editor.setBookmark(op.cursorPos, {'widget': cursorNode});
             this.peerCursors[peer].widgetNode.style['background'] = this.messenger.connections[peer].color;
-            console.log("cursor: ", this.peerCursors[peer]);
+            console.log("Peer cursor: ", this.peerCursors[peer]);
         } else if (op.opType == OpType.Insert || op.opType == OpType.Delete) {
             this.handleRemoteOp(op);
         }
