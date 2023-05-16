@@ -5,6 +5,10 @@ main#main {
     min-height: 100vh;
 }
 
+img#site-logo {
+    max-height: 44px;
+}
+
 .CodeMirror {
     font-family: 'Times New Roman';
     height: calc(100vh - 90px);
@@ -41,12 +45,19 @@ main#main {
 .list-group-item {
     display: flex;
     align-items: center;
+    color: #555;
 }
 
 .user-icon {
-    background-color: red;
+    background-color: black;
     height: 30px;
     width: 30px;
     -webkit-mask: url(static/user.svg) no-repeat center / contain;
     mask: url(static/user.svg) no-repeat center / contain;
+}
+
+#user-self {
+    border-bottom: 1px solid #bbb;
+    color: black;
+    text-decoration: underline;
 }

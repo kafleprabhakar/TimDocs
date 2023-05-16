@@ -224,14 +224,20 @@ export class Client {
         // console.log("Got signal for new client joining");
         if (this.hasEditor) {
             const peers = document.getElementById('peer-list');
+            const selfUser = document.getElementById('user-self');
             const peerTemplate = document.getElementById('peer-item-template');
             peers.innerHTML = "";
             peers.appendChild(peerTemplate);
+            peers.appendChild(selfUser);
             for (let peer in this.messenger.connections) {
                 const thisPeer = peerTemplate.content.cloneNode(true);
                 thisPeer.querySelector(".user-name").innerHTML = this.messenger.connections[peer].name;
                 thisPeer.querySelector(".user-icon").style["background-color"] = this.messenger.connections[peer].color;
                 peers.appendChild(thisPeer);
+            }
+            for (let peer in this.peerCursors) {
+                if (!(peer in this.messenger.connections))
+                    this.peerCursors[peer].clear();
             }
         }
     }
